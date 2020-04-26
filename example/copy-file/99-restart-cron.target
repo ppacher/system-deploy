@@ -1,0 +1,12 @@
+[Task]
+Description=Restart cron service
+
+# This target starts masked so it's not executed unless
+# another target unmasks it.
+StartMasked=yes
+
+[Exec]
+Command=systemctl restart cronie.service
+
+[OnChange]
+Run=bash -c "echo done >> /tmp/log"

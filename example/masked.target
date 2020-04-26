@@ -1,0 +1,6 @@
+[Task]
+Description=A sample task that starts masked
+StartMasked=yes
+
+[Exec]
+Command=bash -c "exit 100"

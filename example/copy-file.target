@@ -1,0 +1,13 @@
+[Task]
+Description=Copy a file to a remote folder
+
+[Copy]
+Source=somefile
+Destination=/tmp/dir1/somedir/
+CreateDirectories=yes
+FileMode=0611
+DirectoryMode=0700
+
+[OnChange]
+Run=bash -c 'echo "something" >> /tmp/dir1/somedir/somefile'
+Unmask=masked.target

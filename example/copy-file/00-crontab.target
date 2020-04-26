@@ -1,0 +1,11 @@
+[Task]
+Description= Install crontab file
+
+[Copy]
+Source=./crontab
+Destination=/etc/cron.d/my-crontab
+CreateDirectories=no
+
+[OnChange]
+Run=chown nobody:nobody /etc/cron.d/my-crontab
+Unmask=99-restart-cron.target
