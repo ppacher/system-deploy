@@ -34,7 +34,7 @@ FileMode= 0600
 Run=systemctl restart cron
 ```
 
-As you can see, the task file starts with a <b><i>Task</i></b> section that contains a human readable description and may contain additional metadata for the task. The discription above is mainly for logging purposes. `StartMasked= no` tells system-deploy that this task is not masked from execution (masked = disabled) and will be executed. This is the default any only here for documentation purposes.  
+As you can see, the task file starts with a <b><i>Task</i></b> section that contains a human readable description and may contain additional metadata for the task. The discription above is mainly for logging purposes. `StartMasked= no` tells system-deploy that this task is not masked from execution (masked = disabled) and will be executed. This is the default and only here for documentation purposes. If set to yes (`StartMasked=yes`) then the task would be disabled and not executed if not enabled by another task (for example, by using `[OnChange] Unmask=<name>.task`). Following the <b><i>Task</i></b> section, one or more actions can be declared, each in it's own section. The example above defines the <b><i>Copy</i></b> action which ensures `./crontab-backup` is copied and kept update in `/etc/cron.d` with 0600 set as the file permissions.
 
 ## Contributing
 
