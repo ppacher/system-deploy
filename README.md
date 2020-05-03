@@ -17,7 +17,24 @@ This will install the `deploy` command into your `$GOBIN` or `$GOPATH/bin` if th
 
 ## Concepts
 
-`TBD`
+`system-deploy` is modeled around `.task` files that follow systemd's unit file syntax. Those tasks can perform one or
+even multiple actions on the system and may trigger subsequent actions or tasks. Here is an example of a task file that copies a crontab file and reloads the cron daemon if it has changed (i.e. a new version has been deployed):
+
+```
+[Task]
+Description= Install cronfile and restart cronie
+StartMasked = no
+
+[Copy]
+Source= ./crontab-backup
+Destination= /etc/cron.d/
+FileMode= 0600
+
+[OnChange]
+Run=systemctl restart cron
+```
+
+As you can see, the task file starts with a <b><i>Task</i></b> section that contains a human readable description and may contain additional metadata for the task. The discription above is mainly for logging purposes. `StartMasked= no` tells system-deploy that this task is not masked from execution (masked = disabled) and will be executed. This is the default any only here for documentation purposes.  
 
 ## Contributing
 
