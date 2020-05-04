@@ -12,6 +12,44 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var markdown bool
+
+func header(val string) string {
+	if markdown {
+		return "## " + val
+	}
+
+	return color.New(color.Bold, color.Underline).Sprint(strings.ToUpper(val))
+}
+
+func bold(val string) string {
+	if markdown {
+		return "**" + val + "**"
+	}
+
+	return color.New(color.Bold).Sprint(val)
+}
+
+func codeBlock(code string) string {
+	if markdown {
+		return "```\n" + code + "\n```"
+	}
+
+	return code
+}
+
+func underlineOrItalic(val string) string {
+	if markdown {
+		return "*" + val + "*"
+	}
+
+	return color.New(color.Underline).Sprint(val)
+}
+
+func init() {
+	describe.Flags().BoolVar(&markdown, "markdown", false, "Print output in markdown")
+}
+
 var describe = &cobra.Command{
 	Use:   "describe",
 	Short: "Display documentation for an action",
@@ -30,8 +68,7 @@ var describe = &cobra.Command{
 			log.Fatalf("Action %s does not exist", args[0])
 		}
 
-		header := color.New(color.Bold, color.Underline)
-		fmt.Printf("[ %s ]\n", header.Sprint(plg.Name))
+		fmt.Printf(header("[ " + plg.Name + " ]"))
 
 		if plg.Description != "" {
 			fmt.Printf("\n%s\n", wrap(plg.Description, ""))
@@ -39,7 +76,7 @@ var describe = &cobra.Command{
 
 		for _, section := range plg.Help {
 			if section.Title != "" {
-				fmt.Printf("\n%s\n", header.Sprint(strings.ToUpper(section.Title)))
+				fmt.Printf("\n%s\n", header(section.Title))
 			}
 
 			if section.Description != "" {
@@ -48,7 +85,7 @@ var describe = &cobra.Command{
 		}
 
 		if !deploy.IsAllowAny(plg.Options) {
-			fmt.Printf("\n%s\n\n", header.Sprint("OPTIONS"))
+			fmt.Printf("\n%s\n\n", header("Options"))
 
 			for _, opt := range plg.Options {
 				required := ""
@@ -62,8 +99,8 @@ var describe = &cobra.Command{
 					defaultValue = fmt.Sprintf(" (Default: %q)", opt.Default)
 				}
 
-				fmt.Printf("   %s (%s)\n      %s\n\n",
-					color.New(color.Bold).Sprint(opt.Name),
+				fmt.Printf("   %s (%s)  \n      %s\n\n",
+					bold(opt.Name),
 					opt.Type.String(),
 					wrap(opt.Description+required+defaultValue, "      "),
 				)
@@ -73,14 +110,14 @@ var describe = &cobra.Command{
 		}
 
 		if plg.Example != "" {
-			fmt.Printf("\n%s\n", header.Sprint("EXAMPLE"))
-			fmt.Printf("\n%s\n", plg.Example)
+			fmt.Printf("\n%s\n", header("Example"))
+			fmt.Printf("\n%s\n", codeBlock(plg.Example))
 		}
 
 		if plg.Author != "" || plg.Website != "" {
-			fmt.Printf("\n%s\n", header.Sprint("CONTACT"))
-			fmt.Printf("\n%s", color.New(color.Underline).Sprint(plg.Author))
-			fmt.Printf("\n%s", plg.Website)
+			fmt.Printf("\n%s\n", header("Contact"))
+			fmt.Printf("\n%s  ", underlineOrItalic(plg.Author))
+			fmt.Printf("\n%s  ", plg.Website)
 
 			fmt.Println()
 		}
