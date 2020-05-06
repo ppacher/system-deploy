@@ -8,10 +8,22 @@ import (
 	"github.com/ppacher/system-deploy/pkg/unit"
 )
 
+// ErrNoSetupFunc is returned when a plugin without a Setup
+// function is registered.
+var ErrNoSetupFunc = errors.New("no setup function defined")
+
+// ErrInvalidAction is returned when a SetupFunc returns an invalid
+// (nil) action
+var ErrInvalidAction = errors.New("invalid (nil) action returned")
+
 // Register registers a new action fn under Rname.
 func Register(plg Plugin) error {
 	actionsLock.Lock()
 	defer actionsLock.Unlock()
+
+	if plg.Setup == nil {
+		return ErrNoSetupFunc
+	}
 
 	key := strings.ToLower(plg.Name)
 
@@ -76,6 +88,10 @@ func Setup(name string, log Logger, task deploy.Task, opts unit.Section) (Action
 	act, err := val.Setup(task, opts)
 	if err != nil {
 		return nil, err
+	}
+
+	if act == nil {
+		return nil, ErrInvalidAction
 	}
 
 	act.SetLogger(log)

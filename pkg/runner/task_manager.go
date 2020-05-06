@@ -16,6 +16,11 @@ var (
 	// ErrTaskNotExists is returned when a task is
 	// expected to exists but doesn't.
 	ErrTaskNotExists = errors.New("task does not exist")
+
+	// ErrExecPhase is returned if the operation is not supported
+	// during execution phase. That is, the TaskManager's Run()
+	// method is called.
+	ErrExecPhase = errors.New("operation not supported during execution phase")
 )
 
 // TaskManager is responsible for managing tasks
@@ -24,21 +29,27 @@ type TaskManager struct {
 	l     sync.RWMutex
 	tasks map[string]*Task
 	order []string
+
+	inPrepare *abool.AtomicBool
+	inExec    *abool.AtomicBool
 }
 
 // NewTaskManager returns a new task manager.
 func NewTaskManager() *TaskManager {
 	return &TaskManager{
-		tasks: make(map[string]*Task),
+		tasks:     make(map[string]*Task),
+		inExec:    abool.New(),
+		inPrepare: abool.New(),
 	}
 }
 
 // AddTask adds a new task to task manager.
 func (tm *TaskManager) AddTask(name string, actions []actions.Action) error {
 	t := &Task{
-		actions: actions,
-		name:    name,
-		masked:  abool.New(),
+		actions:  actions,
+		name:     name,
+		masked:   abool.New(),
+		disabled: abool.New(),
 	}
 
 	tm.l.Lock()
@@ -127,6 +138,26 @@ func (tm *TaskManager) IsAfter(task1, task2 string) (bool, error) {
 	}
 
 	return !isBefore, nil
+}
+
+// DisableTask disables a task so it won't be executed
+// during perperation and execution phase. Once disabled,
+// a task cannot be enabled again. Refer to the
+// actions.TaskManager interface for more information.
+func (tm *TaskManager) DisableTask(task string) error {
+	// DisableTask can only be called during preparation
+	// phase but not during exec.
+	if tm.inExec.IsSet() {
+		return ErrExecPhase
+	}
+
+	t, err := tm.getTask(task)
+	if err != nil {
+		return err
+	}
+
+	t.disabled.Set()
+	return nil
 }
 
 // getTask returns the task with the given name.

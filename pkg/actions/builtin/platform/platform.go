@@ -95,16 +95,16 @@ func (a *matchPlatformAction) Name() string {
 func (a *matchPlatformAction) Prepare(graph actions.ExecGraph) error {
 	var verdict = noMatch
 
-	mask := func() error {
+	disable := func() error {
 		a.Debugf("Disabling task %s due to platform constraints", color.New(color.Bold).Sprint(a.task))
-		return graph.MaskTask(a.task)
+		return graph.DisableTask(a.task)
 	}
 
 	if a.matchOS != "" {
 		t := match(runtime.GOOS, a.matchOS)
 
 		if t == deny {
-			return mask()
+			return disable()
 		}
 
 		if t == allow {
@@ -115,7 +115,7 @@ func (a *matchPlatformAction) Prepare(graph actions.ExecGraph) error {
 	if a.matchPkg != "" {
 		t := matchList(getPackageManagers(), a.matchPkg)
 		if t == deny {
-			return mask()
+			return disable()
 		}
 
 		if t == allow {
@@ -126,7 +126,7 @@ func (a *matchPlatformAction) Prepare(graph actions.ExecGraph) error {
 	// by default we deny if not one of the conditions
 	// matched.
 	if verdict != allow {
-		return mask()
+		return disable()
 	}
 
 	return nil

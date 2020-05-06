@@ -59,16 +59,21 @@ func (r *Runner) Deploy(ctx context.Context) error {
 		tm: r.TaskManager,
 	}
 
+	r.inPrepare.Set()
 	for iter.Next() {
 		r.l.Debugf("Preparing task %q", iter.Name())
 		if err := iter.Task().Prepare(r); err != nil {
 			return fmt.Errorf("failed to perpare target %s: %w", iter.Name(), err)
 		}
 	}
+	r.inPrepare.UnSet()
 
 	iter.Reset()
 
 	bold := color.New(color.Bold)
+
+	r.inExec.Set()
+	defer r.inExec.UnSet()
 
 	for iter.Next() {
 		if iter.IsMasked() {

@@ -10,8 +10,9 @@ import (
 type Task struct {
 	actions []actions.Action
 
-	name   string
-	masked *abool.AtomicBool
+	name     string
+	masked   *abool.AtomicBool
+	disabled *abool.AtomicBool
 }
 
 // mask the task from execution. If t is a nil task mask is a no-op.
@@ -40,6 +41,8 @@ func (t *Task) isMasked() bool {
 	return t.masked.IsSet()
 }
 
+// Prepare calls the perpare method of each action defined
+// in the task.
 func (t *Task) Prepare(graph actions.ExecGraph) error {
 	for _, a := range t.actions {
 		if err := a.Prepare(graph); err != nil {
@@ -50,6 +53,9 @@ func (t *Task) Prepare(graph actions.ExecGraph) error {
 	return nil
 }
 
+// Run executes all actions of the task in the order they are defined.
+// It returns true if any of the actions returned true and aborts on the
+// first error encountered.
 func (t *Task) Run(ctx context.Context, log actions.Logger) (bool, error) {
 	var changed bool
 	for _, a := range t.actions {

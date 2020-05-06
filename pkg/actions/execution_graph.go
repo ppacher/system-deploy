@@ -21,6 +21,17 @@ type TaskManager interface {
 	// UnmaskTask unmasks a task for execution.
 	UnmaskTask(task string) error
 
+	// DisableTask disables a task. Once disabled, a task cannot be
+	// enabled anymore. This should only be used if it's likely that
+	// a given task cannot succeed under certain conditions like
+	// an unsupported operating system or package manager. Once a
+	// task is disabled it won't run in the perperation and execution
+	// phase. DisableTask can only be called during Prepare() and will
+	// return an error during Run(). Note that depending on the order,
+	// a task's Perpare() function might have already been executed when
+	// the task gets disabled.
+	DisableTask(task string) error
+
 	// IsMasked returns true if a task is masked from execution.
 	IsMasked(task string) (bool, error)
 
