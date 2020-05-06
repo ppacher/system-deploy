@@ -52,6 +52,7 @@ The next section is <b><i>OnChange</i></b> which can perform different actions d
 - [installpackages](./pkg/actions/builtin/platform/installpackages.md) allows you to install packages.
 - [platform](./pkg/actions/builtin/platform/platform.md) allows you to enable/disable tasks based on the platform (package manager, os-release, ...)
 - [systemd](./pkg/actions/builtin/systemd/systemd.md) allows you to install and enable systemd unit files.
+- [editfile](./pkg/actions/builtin/editfile/editfile.md) allows you to manipulate files using SED like syntax.
 
 ## Contributing
 
@@ -59,4 +60,6 @@ Any contributions to the `system-deploy` project are welcome! Just fork the repo
 
 ## License
 
-`system-deploy` is licensed under a BSD 3-clause license. See [LICENSE](LICENSE) for more information.
+`system-deploy` itself is licensed under a BSD 3-clause license. See [LICENSE](LICENSE) for more information.
+
+Note that the binary distributed via the release page is licensed under GPL-3 because the `EditFile` action is compiled against a GPL-3 licensed library.
