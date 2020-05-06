@@ -45,22 +45,24 @@ func (t *Task) isMasked() bool {
 // in the task.
 func (t *Task) Prepare(graph actions.ExecGraph) error {
 	for _, a := range t.actions {
-		if err := a.Prepare(graph); err != nil {
-			return err
+		if p, ok := a.(actions.Preparer); ok {
+			if err := p.Prepare(graph); err != nil {
+				return err
+			}
 		}
 	}
 
 	return nil
 }
 
-// Run executes all actions of the task in the order they are defined.
+// Execute executes all actions of the task in the order they are defined.
 // It returns true if any of the actions returned true and aborts on the
 // first error encountered.
-func (t *Task) Run(ctx context.Context, log actions.Logger) (bool, error) {
+func (t *Task) Execute(ctx context.Context, log actions.Logger) (bool, error) {
 	var changed bool
 	for _, a := range t.actions {
-		if r, ok := a.(actions.Runner); ok {
-			c, err := r.Run(ctx)
+		if r, ok := a.(actions.Executor); ok {
+			c, err := r.Execute(ctx)
 			if err != nil {
 				return false, err
 			}

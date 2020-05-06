@@ -114,7 +114,7 @@ func (a *systemdAction) Prepare(graph actions.ExecGraph) error {
 	return nil
 }
 
-func (a *systemdAction) Run(ctx context.Context) (bool, error) {
+func (a *systemdAction) Execute(ctx context.Context) (bool, error) {
 	var changed bool
 
 	if len(a.unitsToInstall) > 0 {

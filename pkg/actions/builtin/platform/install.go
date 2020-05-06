@@ -5,11 +5,17 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 
 	"github.com/ppacher/system-deploy/pkg/actions"
 	"github.com/ppacher/system-deploy/pkg/deploy"
 	"github.com/ppacher/system-deploy/pkg/unit"
+)
+
+var (
+	pacmanNothingToDoRegex = regexp.MustCompile("\n[ \t]{1}there is nothing to do\n")
+	aptChangedRegex        = regexp.MustCompile("[1-9]+[0-9]* (upgraded|newly|to remove)")
 )
 
 func init() {
@@ -95,9 +101,10 @@ func (ia *installAction) Prepare(graph actions.ExecGraph) error {
 	return nil
 }
 
-func (ia *installAction) Run(ctx context.Context) (bool, error) {
+func (ia *installAction) Execute(ctx context.Context) (bool, error) {
 	managers := getPackageManagers()
 
+	var changed bool
 	for _, m := range managers {
 		var err error
 
@@ -106,13 +113,13 @@ func (ia *installAction) Run(ctx context.Context) (bool, error) {
 			if len(ia.pacmanPkgs) == 0 {
 				continue
 			}
-			err = installPacman(ctx, ia.pacmanPkgs...)
+			changed, err = installPacman(ctx, ia.pacmanPkgs...)
 
 		case APT:
 			if len(ia.aptPkgs) == 0 {
 				continue
 			}
-			err = installApt(ctx, ia.aptPkgs...)
+			changed, err = installApt(ctx, ia.aptPkgs...)
 
 		default:
 			continue
@@ -123,26 +130,32 @@ func (ia *installAction) Run(ctx context.Context) (bool, error) {
 		}
 	}
 
-	return true, nil
+	return changed, nil
 }
 
-func installPacman(ctx context.Context, pkgs ...string) error {
+func installPacman(ctx context.Context, pkgs ...string) (bool, error) {
 	args := []string{
 		"-S",
+		"--needed",
+		"--quiet",
 		"--noconfirm",
 	}
 
 	args = append(args, pkgs...)
 	cmd := exec.CommandContext(ctx, "pacman", args...)
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, "LC_ALL=C")
 
-	if output, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("failed to install packages: %w\n%s", err, string(output))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return false, fmt.Errorf("failed to install packages: %w\n%s", err, string(output))
 	}
 
-	return nil
+	nothingToDo := pacmanNothingToDoRegex.Match(output)
+	return !nothingToDo, nil
 }
 
-func installApt(ctx context.Context, pkg ...string) error {
+func installApt(ctx context.Context, pkg ...string) (bool, error) {
 	args := []string{
 		"install",
 		"-y",
@@ -153,10 +166,14 @@ func installApt(ctx context.Context, pkg ...string) error {
 	cmd.Env = os.Environ()
 
 	cmd.Env = append(cmd.Env, "DEBCONF_FRONTEND='noninteractive'")
+	cmd.Env = append(cmd.Env, "LC_ALL=C")
 
-	if output, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("failed to install packages: %w\n%s", err, string(output))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return false, fmt.Errorf("failed to install packages: %w\n%s", err, string(output))
 	}
 
-	return nil
+	hasChanged := aptChangedRegex.Match(output)
+
+	return hasChanged, nil
 }

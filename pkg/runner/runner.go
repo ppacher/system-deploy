@@ -90,7 +90,7 @@ func (r *Runner) Deploy(ctx context.Context) error {
 		}
 
 		r.l.Debugf("Starting task %s", bold.Sprint(name))
-		res, err := task.Run(taskContext, r.l)
+		res, err := task.Execute(taskContext, r.l)
 
 		r.ExecuteAfter(taskContext, name, res, err)
 

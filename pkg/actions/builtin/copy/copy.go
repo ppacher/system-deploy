@@ -193,7 +193,7 @@ func (a *action) Name() string {
 	return "Copy " + a.source + " to " + filepath.Join(a.destDir, a.destName)
 }
 
-func (a *action) Run(ctx context.Context) (bool, error) {
+func (a *action) Execute(ctx context.Context) (bool, error) {
 	var changed bool
 
 	if a.createPath {

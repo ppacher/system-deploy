@@ -216,7 +216,7 @@ func (a *action) Prepare(_ actions.ExecGraph) error {
 	return nil
 }
 
-func (a *action) Run(ctx context.Context) (bool, error) {
+func (a *action) Execute(ctx context.Context) (bool, error) {
 	opts := &utils.ExecOptions{
 		Attrs:      &syscall.SysProcAttr{},
 		PipeInput:  a.pipeIn,

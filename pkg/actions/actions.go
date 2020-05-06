@@ -51,13 +51,13 @@ type Plugin struct {
 	Website string
 }
 
+// Action describes a generic action that is capable of performing
+// a single task. Actions are grouped into tasks and are executed in
+// the order they are defined inside a task. Action implementations
+// are encouraged to embed the Base struct defined below.
 type Action interface {
 	// Name should return a name for the action.
 	Name() string
-
-	// Prepare should prepare the action and return
-	// whether or not the task should be executed or not.
-	Prepare(ExecGraph) error
 
 	// SetLogger is called before Setup and configures the logger
 	SetLogger(l Logger)
@@ -66,30 +66,22 @@ type Action interface {
 	SetTask(t deploy.Task)
 }
 
-type Runner interface {
-	// Run actually performs the action. The returned
+// Preparer describes the interface that actions can implement
+// if they want to prepare execution or perform other actions
+// during the preperation phase.
+type Preparer interface {
+	// Prepare should prepare the action and return
+	// whether or not the task should be executed or not.
+	Prepare(ExecGraph) error
+}
+
+// Executor describes the interface that actions can implement if
+// they want to run during the execution phase.
+type Executor interface {
+	// Execute actually performs the action. The returned
 	// boolean should be set to true if the action
 	// actually did some modifications.
-	Run(ctx context.Context) (bool, error)
-}
-
-// Base provides a base action and is meant to be embedded into
-// real action implementations.
-type Base struct {
-	Logger
-	deploy.Task
-}
-
-// SetLogger configures the logger to use and implements
-// SetLogger from actions.Action.
-func (b *Base) SetLogger(l Logger) {
-	b.Logger = l
-}
-
-// SetTask configures the deploy task and implements
-// SetTask from actions.Action.
-func (b *Base) SetTask(t deploy.Task) {
-	b.Task = t
+	Execute(ctx context.Context) (bool, error)
 }
 
 var (
