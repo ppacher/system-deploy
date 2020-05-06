@@ -64,6 +64,7 @@ func getRootCmd() *cobra.Command {
 	}
 
 	root.AddCommand(describe)
+	root.AddCommand(runActionCommand)
 
 	return root
 }
