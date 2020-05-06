@@ -12,10 +12,10 @@ function gendoc() {
     /tmp/deploy describe $1 --markdown > ${BUILTIN}/${dir}/$1.md ;
 }
 
-
 gendoc installpackages platform
 gendoc platform
 gendoc systemd
 gendoc copy
 gendoc exec
 gendoc onchange
+gendoc editfile
