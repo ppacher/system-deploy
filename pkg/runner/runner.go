@@ -21,31 +21,14 @@ type Runner struct {
 // NewRunner creates a new runner for the given targets.
 func NewRunner(l actions.Logger, targets []deploy.Task) (*Runner, error) {
 	r := &Runner{
-		TaskManager: NewTaskManager(),
+		TaskManager: NewTaskManager(l),
 		Hooker:      NewHooker(),
 		l:           l,
 	}
 
 	for _, target := range targets {
-		var targetActions []actions.Action
-		for idx := range target.Sections {
-			section := target.Sections[idx]
-			action, err := actions.Setup(section.Name, l, target, section)
-			if err != nil {
-				return nil, fmt.Errorf("failed to setup target %s: %w", target.FileName, err)
-			}
-
-			targetActions = append(targetActions, action)
-		}
-		if err := r.AddTask(target.FileName, targetActions); err != nil {
+		if err := r.AddTask(target.FileName, target); err != nil {
 			return nil, fmt.Errorf("failed to add target %s: %w", target.FileName, err)
-		}
-
-		if target.StartMasked {
-			if err := r.MaskTask(target.FileName); err != nil {
-				return nil, fmt.Errorf("failed to mask target %q: %w", target.FileName, err)
-			}
-			r.l.Debugf("masking target %s by default", target.FileName)
 		}
 	}
 
@@ -98,7 +81,7 @@ func (r *Runner) Deploy(ctx context.Context) error {
 			r.l.Warnf("%s: %s", color.New(color.BgRed, color.FgWhite).Sprint("FAIL"), err.Error())
 			return err
 		}
-		resStr := "unchanged"
+		resStr := "pristine"
 
 		if res {
 			resStr = color.New(color.FgHiGreen).Sprint("updated")

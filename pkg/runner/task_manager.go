@@ -2,9 +2,11 @@ package runner
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/ppacher/system-deploy/pkg/actions"
+	"github.com/ppacher/system-deploy/pkg/deploy"
 	"github.com/tevino/abool"
 )
 
@@ -29,27 +31,41 @@ type TaskManager struct {
 	l     sync.RWMutex
 	tasks map[string]*Task
 	order []string
+	log   actions.Logger
 
 	inPrepare *abool.AtomicBool
 	inExec    *abool.AtomicBool
 }
 
 // NewTaskManager returns a new task manager.
-func NewTaskManager() *TaskManager {
+func NewTaskManager(l actions.Logger) *TaskManager {
 	return &TaskManager{
 		tasks:     make(map[string]*Task),
 		inExec:    abool.New(),
 		inPrepare: abool.New(),
+		log:       l,
 	}
 }
 
 // AddTask adds a new task to task manager.
-func (tm *TaskManager) AddTask(name string, actions []actions.Action) error {
+func (tm *TaskManager) AddTask(name string, target deploy.Task) error {
+	var targetActions []actions.Action
+
+	for idx := range target.Sections {
+		section := target.Sections[idx]
+		action, err := actions.Setup(section.Name, tm.log, target, section)
+		if err != nil {
+			return fmt.Errorf("failed to setup target %s: %w", target.FileName, err)
+		}
+
+		targetActions = append(targetActions, action)
+	}
+
 	t := &Task{
-		actions:  actions,
+		actions:  targetActions,
 		name:     name,
-		masked:   abool.New(),
-		disabled: abool.New(),
+		masked:   abool.NewBool(target.StartMasked),
+		disabled: abool.NewBool(target.Disabled),
 	}
 
 	tm.l.Lock()
