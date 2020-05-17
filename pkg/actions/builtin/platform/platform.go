@@ -101,24 +101,19 @@ func (a *matchPlatformAction) Prepare(graph actions.ExecGraph) error {
 	}
 
 	if a.matchOS != "" {
-		t := match(runtime.GOOS, a.matchOS)
-
-		if t == deny {
+		switch match(runtime.GOOS, a.matchOS) {
+		case deny:
 			return disable()
-		}
-
-		if t == allow {
+		case allow:
 			verdict = allow
 		}
 	}
 
 	if a.matchPkg != "" {
-		t := matchList(getPackageManagers(), a.matchPkg)
-		if t == deny {
+		switch matchList(getPackageManagers(), a.matchPkg) {
+		case deny:
 			return disable()
-		}
-
-		if t == allow {
+		case allow:
 			verdict = allow
 		}
 	}
