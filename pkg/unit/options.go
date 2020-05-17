@@ -86,7 +86,7 @@ func (opts Options) GetBool(name string) (bool, error) {
 		return false, err
 	}
 
-	return convertBool(val)
+	return ConvertBool(val)
 }
 
 // GetBoolDefault returns the boolean value for name or a default if
@@ -210,7 +210,7 @@ func (opts Options) GetRequiredFloatSlice(name string) ([]float64, error) {
 	return fs, nil
 }
 
-func convertBool(s string) (bool, error) {
+func ConvertBool(s string) (bool, error) {
 	switch s {
 	case "yes", "Yes", "YES":
 		return true, nil
