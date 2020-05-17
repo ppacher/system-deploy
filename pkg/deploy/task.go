@@ -25,6 +25,9 @@ type Task struct {
 	// by default.
 	StartMasked bool
 
+	// Disabled can be set to true to disable a task permanently.
+	Disabled bool
+
 	// Sections holds the tasks sections.
 	Sections []unit.Section
 }
@@ -45,7 +48,7 @@ func Decode(filePath string, r io.Reader) (*Task, error) {
 	for idx, sec := range sections {
 		if strings.ToLower(sec.Name) == "task" {
 			if err := decodeMetaData(sec, task); err != nil {
-				return nil, fmt.Errorf("failed to decode [Task] section")
+				return nil, ErrInvalidTaskSection
 			}
 
 			task.Sections = append(sections[:idx], sections[idx+1:]...)
@@ -55,7 +58,7 @@ func Decode(filePath string, r io.Reader) (*Task, error) {
 	}
 
 	if len(task.Sections) == 0 {
-		return nil, fmt.Errorf("deploy task does not define any actions")
+		return nil, ErrNoSections
 	}
 
 	return task, nil
@@ -76,8 +79,14 @@ func decodeMetaData(section unit.Section, task *Task) error {
 		return fmt.Errorf("error in option 'StartMasked': %w", err)
 	}
 
+	disabled, err := section.GetBool("Disabled")
+	if err != nil && err != unit.ErrOptionNotSet {
+		return fmt.Errorf("error in option 'Disabled': %w", err)
+	}
+
 	task.Description = description
 	task.StartMasked = startMasked
+	task.Disabled = disabled
 
 	return nil
 }
