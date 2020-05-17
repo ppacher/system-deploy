@@ -1,28 +1,45 @@
 package deploy
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // OptionType describes the type of an option. It cannot
 // be implemented outside the deploy package.
 type OptionType interface {
-	option()
+	option() // ensure types can only be specified by this package.
+
+	IsSliceType() bool
 
 	fmt.Stringer
 }
 
 // All supported option types.
 var (
-	StringType      optionType = "string"
-	StringSliceType optionType = "[]string"
-	BoolType        optionType = "bool"
-	IntType         optionType = "int"
-	IntSliceType    optionType = "[]int"
-	FloatType       optionType = "float"
-	FloatSliceType  optionType = "[]float"
+	StringType      = option("string    ", false)
+	StringSliceType = option("[]string  ", true)
+	BoolType        = option("bool      ", false)
+	IntType         = option("int       ", false)
+	IntSliceType    = option("[]int     ", true)
+	FloatType       = option("float     ", false)
+	FloatSliceType  = option("[]float   ", true)
 )
 
-type optionType string
+type optionType struct {
+	name  string
+	slice bool
+}
 
-func (optionType) option() {}
+func option(name string, slice bool) OptionType {
+	return &optionType{
+		name:  strings.Trim(name, " "),
+		slice: slice,
+	}
+}
 
-func (o optionType) String() string { return string(o) }
+func (*optionType) option() {}
+
+func (o *optionType) IsSliceType() bool { return o.slice }
+
+func (o *optionType) String() string { return o.name }
