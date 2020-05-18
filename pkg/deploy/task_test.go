@@ -10,6 +10,7 @@ import (
 )
 
 func TestDecode(t *testing.T) {
+	var true = true
 	cases := []struct {
 		I string
 		T *Task
@@ -28,8 +29,8 @@ Key1 = Value1
 Key2= Value2
 			`,
 			&Task{
-				StartMasked: true,
-				Disabled:    true,
+				StartMasked: &true,
+				Disabled:    &true,
 				Sections: []unit.Section{
 					{
 						Name: "Section1",

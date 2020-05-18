@@ -20,14 +20,14 @@ type Task struct {
 	Directory string
 
 	// Description is the tasks description.
-	Description string
+	Description *string
 
 	// StartMasked is set to true if this task is disabled (masked)
 	// by default.
-	StartMasked bool
+	StartMasked *bool
 
 	// Disabled can be set to true to disable a task permanently.
-	Disabled bool
+	Disabled *bool
 
 	// Sections holds the tasks sections.
 	Sections []unit.Section
@@ -84,21 +84,23 @@ func decodeMetaData(section unit.Section, task *Task) error {
 	description, err := section.GetString("Description")
 	if err != nil && err != unit.ErrOptionNotSet {
 		return fmt.Errorf("error in option 'Description': %w", err)
+	} else if err == nil {
+		task.Description = &description
 	}
 
 	startMasked, err := section.GetBool("StartMasked")
 	if err != nil && err != unit.ErrOptionNotSet {
 		return fmt.Errorf("error in option 'StartMasked': %w", err)
+	} else if err == nil {
+		task.StartMasked = &startMasked
 	}
 
 	disabled, err := section.GetBool("Disabled")
 	if err != nil && err != unit.ErrOptionNotSet {
 		return fmt.Errorf("error in option 'Disabled': %w", err)
+	} else if err == nil {
+		task.Disabled = &disabled
 	}
-
-	task.Description = description
-	task.StartMasked = startMasked
-	task.Disabled = disabled
 
 	return nil
 }

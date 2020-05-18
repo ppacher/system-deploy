@@ -46,7 +46,16 @@ func ApplyDropIns(t *Task, dropins []*DropIn, specs map[string]map[string]Option
 	}
 
 	for _, d := range dropins {
-		// FIXME(ppacher): merge task section as well.
+		if d.Task.StartMasked != nil {
+			copy.StartMasked = &(*d.Task.StartMasked)
+		}
+		if d.Task.Disabled != nil {
+			copy.Disabled = &(*d.Task.Disabled)
+		}
+		if d.Task.Description != nil {
+			copy.Description = &(*d.Task.Description)
+		}
+
 		for _, dropInSec := range d.Task.Sections {
 			sn := strings.ToLower(dropInSec.Name)
 
