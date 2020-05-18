@@ -55,7 +55,7 @@ func (tm *TaskManager) AddTask(name string, target deploy.Task) error {
 		section := target.Sections[idx]
 		action, err := actions.Setup(section.Name, tm.log, target, section)
 		if err != nil {
-			return fmt.Errorf("failed to setup target %s: %w", target.FileName, err)
+			return fmt.Errorf("setup failed: %w", err)
 		}
 
 		targetActions = append(targetActions, action)

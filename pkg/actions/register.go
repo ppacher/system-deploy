@@ -74,18 +74,23 @@ func ListActions() []string {
 }
 
 // Setup returns the action function for name.
-func Setup(name string, log Logger, task deploy.Task, opts unit.Section) (Action, error) {
+func Setup(name string, log Logger, task deploy.Task, section unit.Section) (Action, error) {
 	actionsLock.RLock()
 	defer actionsLock.RUnlock()
 
 	key := strings.ToLower(name)
 
-	val, ok := actions[key]
+	plg, ok := actions[key]
 	if !ok {
 		return nil, errors.New("unknown action")
 	}
 
-	act, err := val.Setup(task, opts)
+	// validate all section options before calling Setup()
+	if err := deploy.Validate(section, plg.Options); err != nil {
+		return nil, err
+	}
+
+	act, err := plg.Setup(task, section)
 	if err != nil {
 		return nil, err
 	}
