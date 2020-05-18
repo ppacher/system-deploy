@@ -52,6 +52,10 @@ func getRootCmd() *cobra.Command {
 				}
 			}
 
+			if len(targets) == 0 {
+				log.Fatal("no valid tasks found")
+			}
+
 			run, err := runner.NewRunner(actions.NewLogger(), targets)
 			if err != nil {
 				log.Fatal(err)
