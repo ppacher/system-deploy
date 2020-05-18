@@ -10,4 +10,4 @@ DirectoryMode=0700
 
 [OnChange]
 Run=bash -c 'echo "something" >> /tmp/dir1/somedir/somefile'
-Unmask=masked.target
+Unmask=masked.task
