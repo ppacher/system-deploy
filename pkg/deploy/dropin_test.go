@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ppacher/system-deploy/pkg/unit"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -77,4 +78,205 @@ func TestSearchDropinFiles(t *testing.T) {
 		"/lib/task.d/20-task.d.conf",
 		"/lib/foo-.task.d/30-foo-task.d.conf",
 	}, paths)
+}
+
+func TestApplyDropIns(t *testing.T) {
+	specs := map[string]map[string]OptionSpec{
+		"test": {
+			"single": {
+				Type: StringType,
+			},
+			"slice1": {
+				Type: StringSliceType,
+			},
+			"slice2": {
+				Type: StringSliceType,
+			},
+		},
+	}
+	tsk := &Task{
+		Sections: []unit.Section{
+			{
+				Name: "Test",
+				Options: unit.Options{
+					{
+						Name:  "Single",
+						Value: "SV",
+					},
+					{
+						Name:  "Slice1",
+						Value: "Value1",
+					},
+				},
+			},
+		},
+	}
+	d1 := &DropIn{
+		Task: &Task{
+			Sections: []unit.Section{
+				{
+					Name: "Test",
+					Options: unit.Options{
+						{
+							Name:  "Single",
+							Value: "from d1",
+						},
+						{
+							Name:  "Slice2",
+							Value: "from d1.1",
+						},
+						{
+							Name:  "Slice2",
+							Value: "from d1.2",
+						},
+						{
+							Name:  "Slice1",
+							Value: "Value2",
+						},
+					},
+				},
+			},
+		},
+	}
+	d2 := &DropIn{
+		Task: &Task{
+			Sections: []unit.Section{
+				{
+					Name: "Test",
+					Options: unit.Options{
+						{
+							Name:  "Slice1",
+							Value: "", // clear all values
+						},
+						{
+							Name:  "Slice1",
+							Value: "Value2",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	res, err := ApplyDropIns(tsk, []*DropIn{d1, d2}, specs)
+	assert.NoError(t, err)
+	assert.Equal(t, &Task{
+		Sections: []unit.Section{
+			{
+				Name: "Test",
+				Options: unit.Options{
+					{
+						Name:  "Single",
+						Value: "from d1",
+					},
+					{
+						Name:  "Slice2",
+						Value: "from d1.1",
+					},
+					{
+						Name:  "Slice2",
+						Value: "from d1.2",
+					},
+					{
+						Name:  "Slice1",
+						Value: "Value2",
+					},
+				},
+			},
+		},
+	}, res)
+}
+
+func TestApplyDropInsNotAllowed(t *testing.T) {
+	tsk := &Task{
+		Sections: []unit.Section{
+			{
+				Name: "Test",
+			},
+			{
+				Name: "Test",
+			},
+		},
+	}
+
+	tsk, err := ApplyDropIns(tsk,
+		[]*DropIn{
+			{
+				Task: &Task{
+					Sections: []unit.Section{
+						{ // section Test is not allowed because it's not unique in tsk
+							Name: "Test",
+						},
+					},
+				},
+			},
+		},
+		map[string]map[string]OptionSpec{
+			"test": nil,
+		},
+	)
+
+	assert.Nil(t, tsk)
+	assert.Error(t, err)
+}
+
+func TestApplyDropInsSectionNotExists(t *testing.T) {
+	tsk := &Task{
+		Sections: []unit.Section{},
+	}
+
+	tsk, err := ApplyDropIns(tsk,
+		[]*DropIn{
+			{
+				Task: &Task{
+					Sections: []unit.Section{
+						{ // section Test is not allowed because it's not unique in tsk
+							Name: "Unknown",
+						},
+					},
+				},
+			},
+		},
+		map[string]map[string]OptionSpec{
+			"test": nil,
+		},
+	)
+
+	assert.Nil(t, tsk)
+	assert.Error(t, err)
+}
+
+func TestApplyDropInsOptionNotExists(t *testing.T) {
+	tsk := &Task{
+		Sections: []unit.Section{
+			{
+				Name: "Test",
+			},
+		},
+	}
+
+	tsk, err := ApplyDropIns(tsk,
+		[]*DropIn{
+			{
+				Task: &Task{
+					Sections: []unit.Section{
+						{ // section Test is not allowed because it's not unique in tsk
+							Name: "Test",
+							Options: unit.Options{
+								{
+									Name: "does-not-exist",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		map[string]map[string]OptionSpec{
+			"test": nil,
+		},
+	)
+
+	assert.Nil(t, tsk)
+	assert.Error(t, err)
 }

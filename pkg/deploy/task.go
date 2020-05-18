@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -30,6 +31,17 @@ type Task struct {
 
 	// Sections holds the tasks sections.
 	Sections []unit.Section
+}
+
+// DecodeFile is like Decode but reads the task from
+// filePath.
+func DecodeFile(filePath string) (*Task, error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return Decode(filePath, f)
 }
 
 // Decode decodes a deploy task from r and uses the basename
@@ -89,4 +101,37 @@ func decodeMetaData(section unit.Section, task *Task) error {
 	task.Disabled = disabled
 
 	return nil
+}
+
+// Clone creates a deep copy of t.
+func (t *Task) Clone() *Task {
+	n := &Task{
+		FileName:    t.FileName,
+		Directory:   t.Directory,
+		Description: t.Description,
+		StartMasked: t.StartMasked,
+		Disabled:    t.Disabled,
+	}
+
+	if len(t.Sections) > 0 {
+		n.Sections = make([]unit.Section, len(t.Sections))
+		for idx, s := range t.Sections {
+			n.Sections[idx] = unit.Section{
+				Name:    s.Name,
+				Options: make(unit.Options, len(s.Options)),
+			}
+
+			for optIdx, opt := range s.Options {
+				n.Sections[idx].Options[optIdx] = unit.Option{
+					Name:  opt.Name,
+					Value: opt.Value,
+				}
+			}
+		}
+	} else if t.Sections != nil {
+		// make sure we also have an empty slice
+		n.Sections = make([]unit.Section, 0)
+	}
+
+	return n
 }
