@@ -216,13 +216,13 @@ func DropInSearchPaths(unitName string, rootDir string) []string {
 	}
 
 	// add <rootDir>/foo-.task.d and <rootDir>/foo-bar-.task.d
-	parts := strings.Split(name, "-")
+	parts := strings.SplitAfter(name, "-")
 	for idx := 0; idx < len(parts)-1; idx++ {
 		paths = append(
 			paths,
 			filepath.Join(
 				rootDir,
-				strings.Join(parts[0:idx+1], "-")+"-"+ext+".d",
+				strings.Join(parts[0:idx+1], "")+ext+".d",
 			),
 		)
 	}
