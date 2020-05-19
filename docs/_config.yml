@@ -12,7 +12,7 @@ github_username: ppacher
 
 remote_theme: pmarsceill/just-the-docs
 
-p{% linklugins:
+plugins:
   - jekyll-feed
   
 
