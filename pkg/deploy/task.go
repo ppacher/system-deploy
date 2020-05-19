@@ -55,6 +55,7 @@ func Decode(filePath string, r io.Reader) (*Task, error) {
 	task := &Task{
 		FileName:  filepath.Base(filePath),
 		Directory: filepath.Dir(filePath),
+		Sections:  sections,
 	}
 
 	for idx, sec := range sections {

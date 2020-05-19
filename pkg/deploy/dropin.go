@@ -1,6 +1,7 @@
 package deploy
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -110,7 +111,10 @@ func ApplyDropIns(t *Task, dropins []*DropIn, specs map[string]map[string]Option
 
 	// rebuild the section slice.
 	for idx, sec := range copy.Sections {
-		copy.Sections[idx] = *slm[strings.ToLower(sec.Name)]
+		val := slm[strings.ToLower(sec.Name)]
+		if val != nil {
+			copy.Sections[idx] = *val
+		}
 	}
 
 	return copy, nil
@@ -130,7 +134,7 @@ func LoadDropIns(unitName string, searchPath []string) ([]*DropIn, error) {
 		if err != nil {
 			// don't ignore ErrNotExist here because
 			// it existed just a few seconds ago!
-			return nil, err
+			return nil, fmt.Errorf("%s: %w", filePath, err)
 		}
 
 		// Fix the filename to use unitName and

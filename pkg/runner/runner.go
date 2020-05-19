@@ -84,7 +84,7 @@ func (r *Runner) Deploy(ctx context.Context) error {
 		resStr := "pristine"
 
 		if res {
-			resStr = color.New(color.FgHiGreen).Sprint("updated")
+			resStr = color.New(color.FgHiGreen, color.Bold).Sprint("updated")
 		}
 		r.l.Infof("%s: %s", bold.Sprintf("%-30v", name), resStr)
 	}
