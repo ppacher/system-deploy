@@ -3,7 +3,7 @@ email: patrick.pacher@gmail.com
 description: >- 
   Welcome to the system-deploy documentation. system-deploy is a
   systemd inspired server deployment and configuration tool.
-baseurl: "/system-deploy"
+baseurl: "system-deploy"
 url: "https://ppacher.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 github_username: ppacher
 
@@ -28,7 +28,7 @@ compress_html:
 # Aux links for the upper right navigation
 aux_links:
   "system-deploy on GitHub":
-    - "//github.com/ppacher/system-deploy"
+    - "https://github.com/ppacher/system-deploy"
 
 heading_anchors: true
 footer_content: "Copyright &copy; 2020 Patrick Pacher and Contributors. Distributed by an <a href=\"https://github.com/ppacher/system-deploy/tree/master/LICENSE\">BSD 3-Clause license.</a>"
