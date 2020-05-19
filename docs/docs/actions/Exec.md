@@ -1,4 +1,10 @@
-## [ Exec ]
+---
+layout: default
+parent: Actions
+title: Exec
+nav_order: 1
+---
+# Exec
 Execute one or more commands
 
 ## Options

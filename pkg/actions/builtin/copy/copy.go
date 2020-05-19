@@ -29,8 +29,8 @@ func init() {
 			{
 				Title: "Change Detection",
 				Description: "" +
-					"The [Copy] action uses a Murmur3 hash to check whether or not a destination file needs to be updated. " +
-					"In any case, [Copy] ensures the destination files mode bit either match the value of FileMode= or the mode bits of the source file. " +
+					"The `Copy` action uses a Murmur3 hash to check whether or not a destination file needs to be updated. " +
+					"In any case, `Copy` ensures the destination files mode bit either match the value of FileMode= or the mode bits of the source file. " +
 					"See FileMode= for more information.",
 			},
 			{

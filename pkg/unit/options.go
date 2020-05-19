@@ -210,11 +210,14 @@ func (opts Options) GetRequiredFloatSlice(name string) ([]float64, error) {
 	return fs, nil
 }
 
+// ConvertBool converts the string s into
+// a boolean value if it matches one of the supported
+// boolean identifiers.
 func ConvertBool(s string) (bool, error) {
 	switch s {
-	case "yes", "Yes", "YES":
+	case "yes", "Yes", "YES", "on", "ON":
 		return true, nil
-	case "no", "No", "NO":
+	case "no", "No", "NO", "off", "OFF":
 		return false, nil
 	}
 	return strconv.ParseBool(s)

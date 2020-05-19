@@ -2,20 +2,27 @@
 
 go build -o /tmp/deploy ./cmd/deploy 
 
-BUILTIN=./pkg/actions/builtin/
+DOCS=./docs/docs/actions/
 
 function gendoc() {
-    dir=$2
-
-    if [[ "$dir" == "" ]]; then dir=$1; fi
-    
-    /tmp/deploy describe $1 --markdown > ${BUILTIN}/${dir}/$1.md ;
+    cat > ${DOCS}/$1.md <<EOT
+---
+layout: default
+parent: Actions
+title: $1
+nav_order: 1
+---
+EOT
+    /tmp/deploy describe $1 --markdown >> ${DOCS}/$1.md ;
 }
 
-gendoc installpackages platform
-gendoc platform
-gendoc systemd
-gendoc copy
-gendoc exec
-gendoc onchange
-gendoc editfile
+gendoc InstallPackages
+gendoc Platform
+gendoc Systemd
+gendoc Copy
+gendoc Exec
+gendoc OnChange
+gendoc EditFile
+
+# finally, update the search index as well
+(cd docs && bundle exec just-the-docs rake search:init)

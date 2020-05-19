@@ -14,6 +14,14 @@ import (
 
 var markdown bool
 
+func mainHeader(val string) string {
+	if markdown {
+		return "# " + val
+	}
+
+	return color.New(color.Bold, color.Underline).Sprint(strings.ToUpper("[ " + val + " ]"))
+}
+
 func header(val string) string {
 	if markdown {
 		return "## " + val
@@ -32,7 +40,7 @@ func bold(val string) string {
 
 func codeBlock(code string) string {
 	if markdown {
-		return "```\n" + code + "\n```"
+		return "```ini\n" + code + "\n```"
 	}
 
 	return code
@@ -68,7 +76,7 @@ var describe = &cobra.Command{
 			log.Fatalf("Action %s does not exist", args[0])
 		}
 
-		fmt.Printf(header("[ " + plg.Name + " ]"))
+		fmt.Printf(mainHeader(plg.Name))
 
 		if plg.Description != "" {
 			fmt.Printf("\n%s\n", wrap(plg.Description, ""))

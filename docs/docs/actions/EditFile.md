@@ -1,4 +1,10 @@
-## [ EditFile ]
+---
+layout: default
+parent: Actions
+title: EditFile
+nav_order: 1
+---
+# EditFile
 Manipulate existing files using SED like syntax
 
 ## Options
@@ -17,7 +23,7 @@ Manipulate existing files using SED like syntax
 
 ## Example
 
-```
+```ini
 [Task]
 Description= Permit root login via SSH
 

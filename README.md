@@ -54,6 +54,10 @@ The next section is <b><i>OnChange</i></b> which can perform different actions d
 - [systemd](./pkg/actions/builtin/systemd/systemd.md) allows you to install and enable systemd unit files.
 - [editfile](./pkg/actions/builtin/editfile/editfile.md) allows you to manipulate files using SED like syntax.
 
+## Documentation
+
+Additional documentation on `system-deploy` can be found in the [docs](./docs/README.md) or at `https://system-deploy.ppacher.at`.
+
 ## Contributing
 
 Any contributions to the `system-deploy` project are welcome! Just fork the repository and create a PR with your changes. It's recommended to discuss planned changes in an [issue](https://github.com/ppacher/system-deploy/issues) first.
@@ -62,4 +66,4 @@ Any contributions to the `system-deploy` project are welcome! Just fork the repo
 
 `system-deploy` itself is licensed under a BSD 3-clause license. See [LICENSE](LICENSE) for more information.
 
-Note that the binary distributed via the release page is licensed under GPL-3 because the `EditFile` action is compiled against a GPL-3 licensed library.
+Note that the bineries distributed via the release page are licensed under GPL-3 because the `EditFile` action is compiled against a GPL-3 licensed library.

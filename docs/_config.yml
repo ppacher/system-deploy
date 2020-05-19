@@ -1,0 +1,34 @@
+title: system-deploy
+email: patrick.pacher@gmail.com
+description: >- 
+  Welcome to the system-deploy documentation. system-deploy is a
+  systemd inspired server deployment and configuration tool.
+baseurl: ""
+url: "https://system-deploy.ppacher.at" # the base hostname & protocol for your site, e.g. http://example.com
+github_username: ppacher
+
+# Build settings
+theme: just-the-docs
+#remote_theme: pmarsceill/just-the-docs
+plugins:
+  - jekyll-feed
+  
+
+permalink: pretty
+exclude: ["node_modules/", "*.gemspec", "*.gem", "Gemfile", "Gemfile.lock", "package.json", "package-lock.json",  "script/", "LICENSE.txt", "lib/", "bin/", "README.md", "Rakefile"]
+
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  startings: []
+  blanklines: false
+  profile: false
+
+# Aux links for the upper right navigation
+aux_links:
+  "system-deploy on GitHub":
+    - "//github.com/ppacher/system-deploy"
+
+heading_anchors: true
+footer_content: "Copyright &copy; 2020 Patrick Pacher and Contributors. Distributed by an <a href=\"https://github.com/ppacher/system-deploy/tree/master/LICENSE\">BSD 3-Clause license.</a>"

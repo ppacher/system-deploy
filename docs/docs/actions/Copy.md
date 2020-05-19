@@ -1,10 +1,16 @@
-## [ Copy ]
+---
+layout: default
+parent: Actions
+title: Copy
+nav_order: 1
+---
+# Copy
 Copy files and folder and script updates
 
 ## Change Detection
 
-The [Copy] action uses a Murmur3 hash to check whether or not a destination file
-needs to be updated. In any case, [Copy] ensures the destination files mode bit
+The `Copy` action uses a Murmur3 hash to check whether or not a destination file
+needs to be updated. In any case, `Copy` ensures the destination files mode bit
 either match the value of FileMode= or the mode bits of the source file. See
 FileMode= for more information.
 
@@ -39,7 +45,7 @@ will be fixed in a later release.
 
 ## Example
 
-```
+```ini
 [Task]
 Description= Copy file foo to /server/custom/bin
 
