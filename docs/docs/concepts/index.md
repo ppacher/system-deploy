@@ -21,9 +21,9 @@ features or missing sections.
 ---
 
 #### Table Of Contents
-1. [Tasks]({% link docs/concepts/10-tasks.md %})
-1. [Drop-in Files](/docs/concepts/20-dropins)
-1. [Execution Graph](/docs/concepts/30-execution-graph)
+1. [Tasks 1](docs/concepts/10-tasks)
+1. [Drop-in Files]({% link docs/concepts/20-dropins.md %})
+1. [Execution Graph]({% link /docs/concepts/30-execution-graph %})
 
 ---
 
