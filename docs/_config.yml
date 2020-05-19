@@ -10,7 +10,7 @@ github_username: ppacher
 # Build settings
 #theme: just-the-docs
 
-#remote_theme: pmarsceill/just-the-docs
+remote_theme: pmarsceill/just-the-docs
 
 p{% linklugins:
   - jekyll-feed
