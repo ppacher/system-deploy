@@ -55,17 +55,27 @@ func (tm *TaskManager) AddTask(name string, target deploy.Task) error {
 		section := target.Sections[idx]
 		action, err := actions.Setup(section.Name, tm.log, target, section)
 		if err != nil {
-			return fmt.Errorf("failed to setup target %s: %w", target.FileName, err)
+			return fmt.Errorf("setup failed: %w", err)
 		}
 
 		targetActions = append(targetActions, action)
 	}
 
+	var masked bool
+	if target.StartMasked != nil {
+		masked = *target.StartMasked
+	}
+
+	var disabled bool
+	if target.Disabled != nil {
+		disabled = *target.Disabled
+	}
+
 	t := &Task{
 		actions:  targetActions,
 		name:     name,
-		masked:   abool.NewBool(target.StartMasked),
-		disabled: abool.NewBool(target.Disabled),
+		masked:   abool.NewBool(masked),
+		disabled: abool.NewBool(disabled),
 	}
 
 	tm.l.Lock()

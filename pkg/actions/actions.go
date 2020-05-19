@@ -2,6 +2,8 @@ package actions
 
 import (
 	"context"
+	"errors"
+	"strings"
 	"sync"
 
 	"github.com/ppacher/system-deploy/pkg/deploy"
@@ -49,6 +51,39 @@ type Plugin struct {
 
 	// Website may hold the name of the plugin website.
 	Website string
+}
+
+// OptionSpecs returns a map using lower-case option names
+// as the key.
+func (plg *Plugin) OptionSpecs() map[string]deploy.OptionSpec {
+	m := make(map[string]deploy.OptionSpec, len(plg.Options))
+
+	for _, opt := range plg.Options {
+		m[strings.ToLower(opt.Name)] = opt
+	}
+
+	return m
+}
+
+// TaskSpec loads all plugins for the task t and returns a nested lookup map
+// for allowed options per section.
+func TaskSpec(t *deploy.Task) (map[string]map[string]deploy.OptionSpec, error) {
+	actionsLock.RLock()
+	defer actionsLock.RUnlock()
+
+	result := make(map[string]map[string]deploy.OptionSpec)
+
+	for _, sec := range t.Sections {
+		key := strings.ToLower(sec.Name)
+		plg, ok := actions[key]
+		if !ok {
+			return nil, errors.New("unknown action")
+		}
+
+		result[key] = plg.OptionSpecs()
+	}
+
+	return result, nil
 }
 
 // Action describes a generic action that is capable of performing
