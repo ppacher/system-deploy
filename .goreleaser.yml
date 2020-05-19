@@ -2,6 +2,8 @@ before:
   hooks:
     - go mod tidy
     - go generate ./...
+build:
+  main: ./cmd/system-deploy
 builds:
 - env:
   - CGO_ENABLED=0
