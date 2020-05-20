@@ -73,10 +73,10 @@ may contain multiple *[Copy]* sections to ensure multiple files are kept up-to-d
 The order of the action sections is important as *system-deploy* will execute them in 
 that order and abort as soon as an error or failure condition is reported. 
 
-In the above example, the [Copy](/docs/actions/Copy) and the [OnChange](/docs/actions/OnChange) have
+In the above example, the [Copy](../actions/Copy) and the [OnChange](../actions/OnChange) have
 been used.
 
-[Available Actions](/docs/actions/){: .btn .btn-outline .text-green-200 .fs-5 .mb-4 .mb-md-0}
+[Available Actions](../actions/){: .btn .btn-outline .text-green-200 .fs-5 .mb-4 .mb-md-0}
 {: align="center" }
 
 ### Task Properties
