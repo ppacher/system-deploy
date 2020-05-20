@@ -2,6 +2,12 @@
 
 *A systemd inspired system configuration and deployment tool*
 
+[![Go](https://github.com/ppacher/system-deploy/workflows/Go/badge.svg)](https://github.com/ppacher/system-deploy/actions)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/ppacher/system-deploy?style=flat-square)
+![Stable: Beta](https://img.shields.io/badge/Stable-BETA-yellowgreen?style=flat-square)
+![GitHub](https://img.shields.io/github/license/ppacher/system-deploy?style=flat-square)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/ppacher/system-deploy?label=Release&style=flat-square)
+
 `system-deploy` is my personal server management and deployment tool. It's inspired by systemd's unit files and the deployment tool/script used @safing. It currently supports copying files/directories, installing packages and installing/enabling systemd unit files. `system-deploy` is meant to be executed periodically and supports running different actions and tasks when changes are detected.
 
 The compiled binary itself includes help and documentation for almost all supported operations and even some examples.
