@@ -49,7 +49,7 @@ As you can see, the unit file starts with a `[Task]` section that defines metada
 the `.task` file. In the above example a `Description=` is set an the task is marked as
 not-disabled (`Disabled=no` is actually the default value and only specified for
 documentation purposes). The task's description is mainly used for logging purposes while
-`Disabled=` configures the task state. Refer to [Execution Graph](./30-execution-graph)
+`Disabled=` configures the task state. Refer to [Execution Graph](./30-execution-graph.md)
 for more information on task states and their meaning.
 
 Each `.task` file must contain exactly one `[Task]` section. Although allowed to be empty,
@@ -73,10 +73,10 @@ may contain multiple *[Copy]* sections to ensure multiple files are kept up-to-d
 The order of the action sections is important as *system-deploy* will execute them in 
 that order and abort as soon as an error or failure condition is reported. 
 
-In the above example, the [Copy](../actions/Copy) and the [OnChange](../actions/OnChange) have
+In the above example, the [Copy](../actions/Copy.md) and the [OnChange](../actions/OnChange.md) have
 been used.
 
-[Available Actions](../actions/){: .btn .btn-outline .text-green-200 .fs-5 .mb-4 .mb-md-0}
+[Available Actions](../actions/index.md){: .btn .btn-outline .text-green-200 .fs-5 .mb-4 .mb-md-0}
 {: align="center" }
 
 ### Task Properties
@@ -91,5 +91,5 @@ The `[Task]` section of each task file may contain the following properties:
 
 ---
 
-[Next: Drop-in Files](/docs/concepts/20-dropins){: .btn .btn-outline }
+[Next: Drop-in Files](./20-dropins.md){: .btn .btn-outline }
 {: .fs-3 align="right"}
