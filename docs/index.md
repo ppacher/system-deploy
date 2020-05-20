@@ -60,10 +60,10 @@ For example, to install `system-deploy` to `/usr/local/bin`, use the following:
 
 ```bash
 VERSION=0.1.0
-DOWNLOAD_LINK=https://github.com/ppacher/system-deploy/releases/download/v${VERSION}/system-deploy_${VERSION}_linux_i386.tar.gz
-
+DOWNLOAD_LINK=https://github.com/ppacher/system-deploy/releases/download/v${VERSION}/system-deploy_${VERSION}_linux_x86_64.tar.gz
+              
 # Download and unpack the archive
-curl -o system-deploy.tar.gz ${DOWNLOAD_LINK}
+wget -O system-deploy.tar.gz ${DOWNLOAD_LINK}
 tar xfz ./system-deploy.tar.gz
 
 # Add execution permissions and copy to /usr/local/bin
