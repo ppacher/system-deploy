@@ -31,7 +31,7 @@ permalink: /
 ## Overview
 
 `system-deploy` started as my personal server configuration and management tool. It's heavily inspired by systemd's unit files and is focused on
-simplicity, ease of use. Thanks to the <img src="https://golang.org/lib/godoc/images/go-logo-blue.svg" alt="Go" width="30"> programming
+simplicity and ease of use. Thanks to the <img src="https://golang.org/lib/godoc/images/go-logo-blue.svg" alt="Go" width="30"> programming
 language, the released binary is statically linked and does not require any external dependencies like heavy execution environments or
 preinstalled packages.
 

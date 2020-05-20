@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Documentation
-nav_order: 3
+nav_order: 2
 has_children: true
 has_toc: false
 ---
@@ -21,7 +21,7 @@ features or missing sections.
 ---
 
 #### Table Of Contents
-1. [Tasks 1](./10-tasks.md)
+1. [Tasks](./10-tasks.md)
 1. [Drop-in Files](./20-dropins.md)
 1. [Execution Graph](./30-execution-graph.md)
 
