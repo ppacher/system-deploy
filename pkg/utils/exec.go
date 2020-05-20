@@ -63,7 +63,7 @@ func ExecCommand(ctx context.Context, workDir string, cmd string, opts *ExecOpti
 	if err := c.Run(); err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			ws := exitError.Sys().(syscall.WaitStatus)
-			return fmt.Errorf("command returned %d\n%s", ws.ExitStatus(), string(output.Bytes()))
+			return fmt.Errorf("command returned %d\n%s", ws.ExitStatus(), output.String())
 		}
 		return fmt.Errorf("command failed: %w", err)
 	}

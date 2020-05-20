@@ -76,7 +76,7 @@ var describe = &cobra.Command{
 			log.Fatalf("Action %s does not exist", args[0])
 		}
 
-		fmt.Printf(mainHeader(plg.Name))
+		fmt.Println(mainHeader(plg.Name))
 
 		if plg.Description != "" {
 			fmt.Printf("\n%s\n", wrap(plg.Description, ""))

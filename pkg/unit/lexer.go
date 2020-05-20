@@ -215,7 +215,7 @@ func (l *lexer) lexNextSectionOrOptionFunc() lexStep {
 			return l.ignoreLineFunc(l.lexNextSectionOrOptionFunc()), nil
 		}
 
-		l.buf.UnreadRune()
+		_ = l.buf.UnreadRune()
 		return l.lexOptionNameFunc(), nil
 	}
 }
@@ -269,7 +269,7 @@ func (l *lexer) lexOptionValueFunc(name string, partial bytes.Buffer) lexStep {
 				partial.WriteRune('\n')
 			}
 
-			return l.lexOptionValueFunc(name, partial), nil
+			return l.lexOptionValueFunc(name, partial), nil // nolint:staticcheck
 		}
 
 		val := partial.String()

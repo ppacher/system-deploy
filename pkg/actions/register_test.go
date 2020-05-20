@@ -39,7 +39,7 @@ func TestRegisterPlugin(t *testing.T) {
 
 	assert.False(t, setupCalled)
 	_, err := Setup("test", nil, deploy.Task{}, unit.Section{})
-	assert.Error(t, ErrInvalidAction)
+	assert.Error(t, err)
 	assert.True(t, setupCalled)
 
 	_, err = Setup("test", nil, deploy.Task{}, unit.Section{})

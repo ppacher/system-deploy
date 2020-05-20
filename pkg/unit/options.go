@@ -40,7 +40,7 @@ func (opts Options) GetString(name string) (string, error) {
 	for _, opt := range opts {
 		if strings.ToLower(opt.Name) == name {
 			if found {
-
+				return "", ErrOptionAllowedOnce
 			}
 			s = opt.Value
 			found = true
