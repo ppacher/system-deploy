@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Test
+    name: Linter
     runs-on: ubuntu-latest
     steps:
     - name: Check out code into the Go module directory
@@ -19,6 +19,12 @@ jobs:
 
     - name: Run golangci-lint
       uses: actions-contrib/golangci-lint@v1
+      
+    - name: Run gofmt
+      run: bash -c "test -z $(gofmt -s -l .)"
+      
+    - name: Run go vet
+      run: go vet ./...
         
   build:
     name: Build
