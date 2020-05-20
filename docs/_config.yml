@@ -27,7 +27,7 @@ compress_html:
 
 relative_links:
   enabled:     true
-  collections: false
+  collections: true
 
 # Aux links for the upper right navigation
 aux_links:
