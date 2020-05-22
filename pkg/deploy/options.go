@@ -48,6 +48,65 @@ func IsAllowAny(spec []OptionSpec) bool {
 	return reflect.ValueOf(spec).Pointer() == reflect.ValueOf(AllowAny).Pointer()
 }
 
+// Prepare prepares the sec by applying default values and validating
+// options against a set of option specs.
+func Prepare(sec unit.Section, specs []OptionSpec) (unit.Section, error) {
+	var copy = unit.Section{
+		Name:    sec.Name,
+		Options: ApplyDefaults(sec.Options, specs),
+	}
+
+	if err := Validate(sec, specs); err != nil {
+		return copy, err
+	}
+
+	return copy, nil
+}
+
+// ApplyDefaults will add the default value for each option that is not specified
+// but has an default set in it's spec.
+func ApplyDefaults(options unit.Options, specs []OptionSpec) unit.Options {
+	// Do nothing if specs is set to AllowAny.
+	if IsAllowAny(specs) {
+		return options
+	}
+
+	for _, spec := range specs {
+		if spec.Required {
+			// if it's required we can skip that here because
+			// Validate() would return an error anyway.
+			continue
+		}
+
+		if spec.Default == "" {
+			continue
+		}
+
+		var err error
+		if spec.Type.IsSliceType() {
+			// we use Required here because we need to get
+			// the ErrOptionNotSet error
+			_, err = options.GetRequiredStringSlice(spec.Name)
+		} else {
+			// GetString could actually return ErrOptionAllowedOnce too
+			// be we don't care here because it means a value is set and
+			// validate would fail anyway.
+			_, err = options.GetString(spec.Name)
+		}
+
+		if err == unit.ErrOptionNotSet {
+			// we don't validate if spec.Default actually matches
+			// spec.Type because Validate() would do it anyway.
+			options = append(options, unit.Option{
+				Name:  spec.Name,
+				Value: spec.Default,
+			})
+		}
+	}
+
+	return options
+}
+
 // Validate validates if all unit options specified in sec conform
 // to the specification options.
 func Validate(sec unit.Section, options []OptionSpec) error {

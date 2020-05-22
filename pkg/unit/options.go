@@ -69,7 +69,8 @@ func (opts Options) GetStringSlice(name string) []string {
 }
 
 // GetRequiredStringSlice is like GetStringSlice but returns an error if
-// name is not specified at least once.
+// name is not specified at least once. GetRequiredStringSlice only ever
+// returns ErrOptionNotSet, never some other error.
 func (opts Options) GetRequiredStringSlice(name string) ([]string, error) {
 	s := opts.GetStringSlice(name)
 	if len(s) == 0 {

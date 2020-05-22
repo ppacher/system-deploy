@@ -85,12 +85,13 @@ func Setup(name string, log Logger, task deploy.Task, section unit.Section) (Act
 		return nil, errors.New("unknown action")
 	}
 
-	// validate all section options before calling Setup()
-	if err := deploy.Validate(section, plg.Options); err != nil {
+	// prepare the section by applying defaults and validating all options.
+	prepared, err := deploy.Prepare(section, plg.Options)
+	if err != nil {
 		return nil, err
 	}
 
-	act, err := plg.Setup(task, section)
+	act, err := plg.Setup(task, prepared)
 	if err != nil {
 		return nil, err
 	}

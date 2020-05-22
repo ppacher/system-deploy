@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ppacher/system-deploy/pkg/unit"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCheckValue(t *testing.T) {
@@ -39,6 +40,81 @@ func TestCheckValue(t *testing.T) {
 		if !errors.Is(err, c.E) {
 			t.Errorf("case #%d (input=%v) expected error to be %s but got %s", idx, c.V, c.E, err)
 		}
+	}
+}
+
+func TestApplyDefaults(t *testing.T) {
+	cases := []struct {
+		I OptionSpec
+		O unit.Options
+		V []string
+	}{
+		{
+			I: OptionSpec{
+				Name:    "test",
+				Default: "some-value",
+				Type:    StringType,
+			},
+			O: unit.Options{
+				{
+					Name:  "Key2",
+					Value: "something",
+				},
+			},
+			V: []string{"some-value"},
+		},
+		// Ignore if there's no default
+		{
+			I: OptionSpec{
+				Name:    "Test",
+				Default: "",
+				Type:    StringType,
+			},
+			O: unit.Options{},
+			V: nil,
+		},
+		// Ignore if required.
+		{
+			I: OptionSpec{
+				Name:     "Test",
+				Default:  "",
+				Type:     StringType,
+				Required: true,
+			},
+			O: unit.Options{},
+			V: nil,
+		},
+		{
+			I: OptionSpec{
+				Name:    "Test",
+				Default: "val1",
+				Type:    StringSliceType,
+			},
+			O: unit.Options{},
+			V: []string{"val1"},
+		},
+		{
+			I: OptionSpec{
+				Name:    "Test",
+				Default: "val1",
+				Type:    StringSliceType,
+			},
+			O: unit.Options{
+				{
+					Name:  "Test",
+					Value: "val2",
+				},
+			},
+			V: []string{"val2"},
+		},
+	}
+
+	for idx, c := range cases {
+		opts := ApplyDefaults(c.O, []OptionSpec{c.I})
+
+		values := opts.GetStringSlice(c.I.Name)
+
+		assert.Equal(t, c.V, values, "case #d", idx)
 	}
 }
 
