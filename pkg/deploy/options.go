@@ -56,7 +56,7 @@ func Prepare(sec unit.Section, specs []OptionSpec) (unit.Section, error) {
 		Options: ApplyDefaults(sec.Options, specs),
 	}
 
-	if err := Validate(sec, specs); err != nil {
+	if err := Validate(sec.Options, specs); err != nil {
 		return copy, err
 	}
 
@@ -109,20 +109,20 @@ func ApplyDefaults(options unit.Options, specs []OptionSpec) unit.Options {
 
 // Validate validates if all unit options specified in sec conform
 // to the specification options.
-func Validate(sec unit.Section, options []OptionSpec) error {
-	if IsAllowAny(options) {
+func Validate(options unit.Options, specs []OptionSpec) error {
+	if IsAllowAny(specs) {
 		return nil
 	}
 
 	// build a lookup map for all options specs.
 	lm := make(map[string]OptionSpec)
-	for _, spec := range options {
+	for _, spec := range specs {
 		lm[strings.ToLower(spec.Name)] = spec
 	}
 
 	// group option values by option name.
 	gv := make(map[string][]string)
-	for _, opt := range sec.Options {
+	for _, opt := range options {
 		n := strings.ToLower(opt.Name)
 		gv[n] = append(gv[n], opt.Value)
 	}

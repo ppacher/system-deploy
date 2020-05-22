@@ -2,7 +2,6 @@ package deploy
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -82,28 +81,19 @@ func decodeMetaData(section unit.Section, task *Task) error {
 		return errors.New("invalid section name")
 	}
 
-	description, err := section.GetString("Description")
-	if err != nil && err != unit.ErrOptionNotSet {
-		return fmt.Errorf("error in option 'Description': %w", err)
-	} else if err == nil {
-		task.Description = &description
+	specs := make([]OptionSpec, len(taskOptions))
+	for idx, spec := range taskOptions {
+		vals := section.Options.GetStringSlice(spec.Name)
+		if len(vals) > 0 && spec.set != nil {
+			if err := spec.set(section.Options, task); err != nil {
+				return err
+			}
+		}
+
+		specs[idx] = spec.OptionSpec
 	}
 
-	startMasked, err := section.GetBool("StartMasked")
-	if err != nil && err != unit.ErrOptionNotSet {
-		return fmt.Errorf("error in option 'StartMasked': %w", err)
-	} else if err == nil {
-		task.StartMasked = &startMasked
-	}
-
-	disabled, err := section.GetBool("Disabled")
-	if err != nil && err != unit.ErrOptionNotSet {
-		return fmt.Errorf("error in option 'Disabled': %w", err)
-	} else if err == nil {
-		task.Disabled = &disabled
-	}
-
-	return nil
+	return Validate(section.Options, specs)
 }
 
 // Clone creates a deep copy of t.

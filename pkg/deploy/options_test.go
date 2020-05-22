@@ -233,7 +233,7 @@ func TestValidate(t *testing.T) {
 	}
 
 	for idx, c := range cases {
-		err := Validate(unit.Section{Options: c.V}, c.I)
+		err := Validate(c.V, c.I)
 		if !errors.Is(err, c.E) {
 			t.Errorf("cases #%d (input=%v): expected errot to be '%v' but got '%v'", idx, c.V, c.E, err)
 		}

@@ -71,9 +71,21 @@ var describe = &cobra.Command{
 			log.Fatal("only one parameter expected")
 		}
 
-		plg, ok := actions.GetPlugin(args[0])
-		if !ok {
-			log.Fatalf("Action %s does not exist", args[0])
+		var plg actions.Plugin
+		if args[0] == "task" {
+			plg = actions.Plugin{
+				Name:        "Task",
+				Description: "The tasks meta section",
+				Website:     "https://ppacher.github.io/system-deploy",
+				Author:      "Patrick Pacher",
+				Options:     deploy.TaskOptions(),
+			}
+		} else {
+			var ok bool
+			plg, ok = actions.GetPlugin(args[0])
+			if !ok {
+				log.Fatalf("Action %s does not exist", args[0])
+			}
 		}
 
 		fmt.Println(mainHeader(plg.Name))
