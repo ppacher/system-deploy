@@ -59,13 +59,18 @@ func (r *Runner) Deploy(ctx context.Context) error {
 	defer r.inExec.UnSet()
 
 	for iter.Next() {
-		if iter.IsMasked() {
-			r.l.Debugf("skipping masked target %s", iter.Name())
+		task := iter.Task()
+		name := iter.Name()
+
+		if iter.IsDisabled() {
+			r.l.Infof("%s: %s", bold.Sprintf("%-30v", name), color.New(color.FgYellow).Sprint("disabled"))
 			continue
 		}
 
-		task := iter.Task()
-		name := iter.Name()
+		if iter.IsMasked() {
+			r.l.Infof("%s: %s", bold.Sprintf("%-30v", name), color.New(color.FgYellow).Sprint("masked"))
+			continue
+		}
 
 		taskContext, err := r.ExecuteBefore(ctx, name)
 		if err != nil {

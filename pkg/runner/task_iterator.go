@@ -48,6 +48,18 @@ func (iter *taskIter) IsMasked() bool {
 	return iter.task.isMasked()
 }
 
+// IsDisabled return true if the task is disabled.
+func (iter *taskIter) IsDisabled() bool {
+	iter.Lock()
+	defer iter.Unlock()
+
+	if iter.task == nil {
+		return false
+	}
+
+	return iter.task.disabled.IsSet()
+}
+
 // Name returns the action of the current task.
 func (iter *taskIter) Name() string {
 	iter.Lock()
