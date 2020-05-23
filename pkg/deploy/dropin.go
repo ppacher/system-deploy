@@ -17,6 +17,7 @@ const DropInExt = ".conf"
 // DropIn is a drop-in file for a given system-deploy task.
 type DropIn struct {
 	File string
+	Meta *unit.Section
 	Task *Task
 }
 
@@ -47,14 +48,8 @@ func ApplyDropIns(t *Task, dropins []*DropIn, specs map[string]map[string]Option
 	}
 
 	for _, d := range dropins {
-		if d.Task.StartMasked != nil {
-			copy.StartMasked = d.Task.StartMasked
-		}
-		if d.Task.Disabled != nil {
-			copy.Disabled = d.Task.Disabled
-		}
-		if d.Task.Description != nil {
-			copy.Description = d.Task.Description
+		if err := mergeMetaSection(copy, d); err != nil {
+			return nil, err
 		}
 
 		for _, dropInSec := range d.Task.Sections {
@@ -70,41 +65,8 @@ func ApplyDropIns(t *Task, dropins []*DropIn, specs map[string]map[string]Option
 				return nil, ErrDropInSectionNotAllowed
 			}
 
-			// build a lookup map for the option values in this
-			// drop-in section
-			olm := make(map[string][]unit.Option)
-			for _, opt := range dropInSec.Options {
-				on := strings.ToLower(opt.Name)
-				olm[on] = append(olm[on], opt)
-			}
-
-			// update each option, one after the other
-			for optName, opts := range olm {
-				optSpec, ok := sectionSpec[optName]
-				if !ok {
-					return nil, ErrOptionNotExists
-				}
-
-				// if the first value is empty it means we should
-				// remove all current values in a slice type.
-				// If it's not a slice type we are going to overwrite the existing
-				// value so we can also remove it.
-				if !optSpec.Type.IsSliceType() || opts[0].Value == "" {
-					var newOpts unit.Options
-					for _, opt := range s.Options {
-						if strings.ToLower(opt.Name) != optName {
-							newOpts = append(newOpts, opt)
-						}
-					}
-					s.Options = newOpts
-
-					if optSpec.Type.IsSliceType() {
-						opts = opts[1:]
-					}
-				}
-
-				// add the new values to the list
-				s.Options = append(s.Options, opts...)
+			if err := mergeSections(s, dropInSec, sectionSpec); err != nil {
+				return nil, err
 			}
 		}
 	}
@@ -120,6 +82,91 @@ func ApplyDropIns(t *Task, dropins []*DropIn, specs map[string]map[string]Option
 	return copy, nil
 }
 
+func mergeMetaSection(t *Task, dropIn *DropIn) error {
+	if dropIn.Meta == nil {
+		return nil
+	}
+
+	// t does not have a unit.Section containing the meta data
+	// anymore so we need to build a dummy one.
+	dummy := unit.Section{
+		Name: "Task",
+	}
+	specs := make(map[string]OptionSpec)
+
+	for _, spec := range taskOptions {
+		specs[strings.ToLower(spec.Name)] = spec.OptionSpec
+
+		// get the current value
+		if spec.get != nil {
+			for _, v := range spec.get(t) {
+				dummy.Options = append(dummy.Options, unit.Option{
+					Name:  spec.Name,
+					Value: v,
+				})
+			}
+		}
+
+		// reset the current value to it's default
+		if spec.set != nil {
+			spec.set(nil, t) //nolint:errcheck
+		}
+	}
+
+	// merge the section and update dummy
+	if err := mergeSections(&dummy, *dropIn.Meta, specs); err != nil {
+		return err
+	}
+
+	// finally, update the task by "re-parsing" the meta section
+	if err := decodeMetaData(dummy, t); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func mergeSections(s *unit.Section, dropInSec unit.Section, sectionSpec map[string]OptionSpec) error {
+	// build a lookup map for the option values in this
+	// drop-in section
+	olm := make(map[string][]unit.Option)
+	for _, opt := range dropInSec.Options {
+		on := strings.ToLower(opt.Name)
+		olm[on] = append(olm[on], opt)
+	}
+
+	// update each option, one after the other
+	for optName, opts := range olm {
+		optSpec, ok := sectionSpec[optName]
+		if !ok {
+			return fmt.Errorf("%s: %w", optName, ErrOptionNotExists)
+		}
+
+		// if the first value is empty it means we should
+		// remove all current values in a slice type.
+		// If it's not a slice type we are going to overwrite the existing
+		// value so we can also remove it.
+		if !optSpec.Type.IsSliceType() || opts[0].Value == "" {
+			var newOpts unit.Options
+			for _, opt := range s.Options {
+				if strings.ToLower(opt.Name) != optName {
+					newOpts = append(newOpts, opt)
+				}
+			}
+			s.Options = newOpts
+
+			if optSpec.Type.IsSliceType() {
+				opts = opts[1:]
+			}
+		}
+
+		// add the new values to the list
+		s.Options = append(s.Options, opts...)
+	}
+
+	return nil
+}
+
 // LoadDropIns loads all drop-in files for unitName. See SearchDropInFiles
 // and DropInSearchPaths for more information on the searchPath.
 func LoadDropIns(unitName string, searchPath []string) ([]*DropIn, error) {
@@ -130,7 +177,7 @@ func LoadDropIns(unitName string, searchPath []string) ([]*DropIn, error) {
 
 	dropins := make([]*DropIn, len(files))
 	for idx, filePath := range files {
-		t, err := DecodeFile(filePath)
+		t, meta, err := decodeFile(filePath)
 		if err != nil {
 			// don't ignore ErrNotExist here because
 			// it existed just a few seconds ago!
@@ -145,6 +192,7 @@ func LoadDropIns(unitName string, searchPath []string) ([]*DropIn, error) {
 		dropins[idx] = &DropIn{
 			File: filePath,
 			Task: t,
+			Meta: meta,
 		}
 	}
 

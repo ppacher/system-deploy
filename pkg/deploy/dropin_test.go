@@ -139,12 +139,21 @@ func TestApplyDropIns(t *testing.T) {
 		},
 	}
 
-	var true = true
-	var desc = "Test Description"
 	d2 := &DropIn{
+		Meta: &unit.Section{
+			Name: "Task",
+			Options: unit.Options{
+				{
+					Name:  "Description",
+					Value: "Test Description",
+				},
+				{
+					Name:  "Disabled",
+					Value: "true",
+				},
+			},
+		},
 		Task: &Task{
-			Disabled:    &true,
-			Description: &desc,
 			Sections: []unit.Section{
 				{
 					Name: "Test",
@@ -166,8 +175,8 @@ func TestApplyDropIns(t *testing.T) {
 	res, err := ApplyDropIns(tsk, []*DropIn{d1, d2}, specs)
 	assert.NoError(t, err)
 	assert.Equal(t, &Task{
-		Disabled:    &true,
-		Description: &desc,
+		Disabled:    true,
+		Description: "Test Description",
 		Sections: []unit.Section{
 			{
 				Name: "Test",

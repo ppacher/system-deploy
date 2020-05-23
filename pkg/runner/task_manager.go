@@ -61,21 +61,11 @@ func (tm *TaskManager) AddTask(name string, target deploy.Task) error {
 		targetActions = append(targetActions, action)
 	}
 
-	var masked bool
-	if target.StartMasked != nil {
-		masked = *target.StartMasked
-	}
-
-	var disabled bool
-	if target.Disabled != nil {
-		disabled = *target.Disabled
-	}
-
 	t := &Task{
 		actions:  targetActions,
 		name:     name,
-		masked:   abool.NewBool(masked),
-		disabled: abool.NewBool(disabled),
+		masked:   abool.NewBool(target.StartMasked),
+		disabled: abool.NewBool(target.Disabled),
 	}
 
 	tm.l.Lock()

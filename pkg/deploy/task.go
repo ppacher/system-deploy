@@ -19,36 +19,52 @@ type Task struct {
 	Directory string
 
 	// Description is the tasks description.
-	Description *string
+	Description string
 
 	// StartMasked is set to true if this task is disabled (masked)
 	// by default.
-	StartMasked *bool
+	StartMasked bool
 
 	// Disabled can be set to true to disable a task permanently.
-	Disabled *bool
+	Disabled bool
+
+	// EnvironmentFiles holds a list of environment files.
+	EnvironmentFiles []string
 
 	// Sections holds the tasks sections.
 	Sections []unit.Section
+
+	// Environment holds the parsed environment.
+	Environment []string
 }
 
 // DecodeFile is like Decode but reads the task from
 // filePath.
 func DecodeFile(filePath string) (*Task, error) {
+	tsk, _, err := decodeFile(filePath)
+	return tsk, err
+}
+
+func decodeFile(filePath string) (*Task, *unit.Section, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer f.Close()
-	return Decode(filePath, f)
+	return decode(filePath, f)
 }
 
 // Decode decodes a deploy task from r and uses the basename
 // of name as the task's name.
 func Decode(filePath string, r io.Reader) (*Task, error) {
+	tsk, _, err := decode(filePath, r)
+	return tsk, err
+}
+
+func decode(filePath string, r io.Reader) (*Task, *unit.Section, error) {
 	sections, err := unit.Deserialize(r)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	task := &Task{
@@ -56,11 +72,14 @@ func Decode(filePath string, r io.Reader) (*Task, error) {
 		Directory: filepath.Dir(filePath),
 		Sections:  sections,
 	}
+	var metaSection *unit.Section
 
 	for idx, sec := range sections {
 		if strings.ToLower(sec.Name) == "task" {
+			metaSection = &sec
+
 			if err := decodeMetaData(sec, task); err != nil {
-				return nil, ErrInvalidTaskSection
+				return nil, nil, ErrInvalidTaskSection
 			}
 
 			task.Sections = append(sections[:idx], sections[idx+1:]...)
@@ -70,10 +89,10 @@ func Decode(filePath string, r io.Reader) (*Task, error) {
 	}
 
 	if len(task.Sections) == 0 {
-		return nil, ErrNoSections
+		return nil, metaSection, ErrNoSections
 	}
 
-	return task, nil
+	return task, metaSection, nil
 }
 
 func decodeMetaData(section unit.Section, task *Task) error {
@@ -97,18 +116,28 @@ func decodeMetaData(section unit.Section, task *Task) error {
 }
 
 // Clone creates a deep copy of t.
-func (t *Task) Clone() *Task {
+func (tsk *Task) Clone() *Task {
 	n := &Task{
-		FileName:    t.FileName,
-		Directory:   t.Directory,
-		Description: t.Description,
-		StartMasked: t.StartMasked,
-		Disabled:    t.Disabled,
+		FileName:    tsk.FileName,
+		Directory:   tsk.Directory,
+		Description: tsk.Description,
+		StartMasked: tsk.StartMasked,
+		Disabled:    tsk.Disabled,
 	}
 
-	if len(t.Sections) > 0 {
-		n.Sections = make([]unit.Section, len(t.Sections))
-		for idx, s := range t.Sections {
+	if tsk.EnvironmentFiles != nil {
+		n.EnvironmentFiles = make([]string, len(tsk.EnvironmentFiles))
+		copy(n.EnvironmentFiles, tsk.EnvironmentFiles)
+	}
+
+	if tsk.Environment != nil {
+		n.Environment = make([]string, len(tsk.Environment))
+		copy(n.Environment, tsk.Environment)
+	}
+
+	if len(tsk.Sections) > 0 {
+		n.Sections = make([]unit.Section, len(tsk.Sections))
+		for idx, s := range tsk.Sections {
 			n.Sections[idx] = unit.Section{
 				Name:    s.Name,
 				Options: make(unit.Options, len(s.Options)),
@@ -121,7 +150,7 @@ func (t *Task) Clone() *Task {
 				}
 			}
 		}
-	} else if t.Sections != nil {
+	} else if tsk.Sections != nil {
 		// make sure we also have an empty slice
 		n.Sections = make([]unit.Section, 0)
 	}

@@ -5,6 +5,7 @@ import "github.com/ppacher/system-deploy/pkg/unit"
 type taskMetaOption struct {
 	OptionSpec
 	set func(val unit.Options, t *Task) error
+	get func(t *Task) []string
 }
 
 // TaskOptions returns a slice of OptionSpec that are
@@ -29,13 +30,20 @@ var taskOptions = []taskMetaOption{
 			Type:        StringType,
 		},
 		set: func(val unit.Options, t *Task) error {
-			str, err := val.GetString("Description")
-			if err != nil {
-				return err
+			if val == nil {
+				t.Description = ""
+				return nil
 			}
 
-			t.Description = &str
-			return nil
+			var err error
+			t.Description, err = val.GetString("Description")
+			return err
+		},
+		get: func(t *Task) []string {
+			if t.Description == "" {
+				return nil
+			}
+			return []string{t.Description}
 		},
 	},
 	{
@@ -46,13 +54,21 @@ var taskOptions = []taskMetaOption{
 			Type:        BoolType,
 		},
 		set: func(val unit.Options, t *Task) error {
-			masked, err := val.GetBool("StartMasked")
-			if err != nil {
-				return err
+			if val == nil {
+				t.StartMasked = false
+				return nil
 			}
 
-			t.StartMasked = &masked
-			return nil
+			var err error
+			t.StartMasked, err = val.GetBool("StartMasked")
+			return err
+		},
+		get: func(t *Task) []string {
+			if t.StartMasked == false {
+				return nil
+			}
+
+			return []string{"yes"}
 		},
 	},
 	{
@@ -63,13 +79,45 @@ var taskOptions = []taskMetaOption{
 			Type:        BoolType,
 		},
 		set: func(val unit.Options, t *Task) error {
-			disabled, err := val.GetBool("Disabled")
+			if val == nil {
+				t.Disabled = false
+				return nil
+			}
+			var err error
+			t.Disabled, err = val.GetBool("Disabled")
+			return err
+		},
+		get: func(t *Task) []string {
+			if t.Disabled == false {
+				return nil
+			}
+
+			return []string{"yes"}
+		},
+	},
+	{
+		OptionSpec: OptionSpec{
+			Name: "Environment",
+			Description: "Configure one or more environment files that are loaded into the task and may be used during substitution. " +
+				"Environment files are loaded in the order they are specified and later ones overwrite already existing values.",
+			Type: StringSliceType,
+		},
+		set: func(val unit.Options, t *Task) error {
+			if val == nil {
+				t.EnvironmentFiles = nil
+				return nil
+			}
+
+			files, err := val.GetRequiredStringSlice("Environment")
 			if err != nil {
 				return err
 			}
 
-			t.Disabled = &disabled
+			t.EnvironmentFiles = files
 			return nil
+		},
+		get: func(t *Task) []string {
+			return t.EnvironmentFiles
 		},
 	},
 }
