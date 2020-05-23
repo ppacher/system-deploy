@@ -35,7 +35,8 @@ func ApplyDropIns(t *Task, dropins []*DropIn, specs map[string]map[string]Option
 
 	slm := make(map[string]*unit.Section)
 
-	for _, sec := range copy.Sections {
+	for idx := range copy.Sections {
+		sec := copy.Sections[idx]
 		sn := strings.ToLower(sec.Name)
 		if _, ok := slm[sn]; ok {
 			// that section is defined multiple times
