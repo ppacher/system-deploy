@@ -77,6 +77,8 @@ Key2= Value2
 			t.Errorf("case #%d: expected error to be '%v' but got '%v'", idx, c.E, err)
 		}
 
-		assert.Equal(t, c.T, tsk)
+		if c.E == nil {
+			assert.Equal(t, c.T, tsk, "case %d", idx)
+		}
 	}
 }

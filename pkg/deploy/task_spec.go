@@ -64,7 +64,7 @@ var taskOptions = []taskMetaOption{
 			return err
 		},
 		get: func(t *Task) []string {
-			if t.StartMasked == false {
+			if !t.StartMasked {
 				return nil
 			}
 
@@ -88,7 +88,7 @@ var taskOptions = []taskMetaOption{
 			return err
 		},
 		get: func(t *Task) []string {
-			if t.Disabled == false {
+			if !t.Disabled {
 				return nil
 			}
 
