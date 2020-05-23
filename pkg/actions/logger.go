@@ -33,7 +33,11 @@ func (sl *simpleLogger) Progress(value float64, msg string) {
 
 // NewLogger returns a new logger
 func NewLogger() Logger {
-	return &simpleLogger{
+	l := &simpleLogger{
 		Logger: logrus.New(),
 	}
+
+	l.SetLevel(logrus.GetLevel())
+
+	return l
 }

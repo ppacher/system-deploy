@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
@@ -25,7 +26,7 @@ func getRootCmd() *cobra.Command {
 		Short: "Deploy and manage system configuration",
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			logrus.SetLevel(logrus.DebugLevel)
+
 			var targets []deploy.Task
 			for _, dir := range args {
 				stat, err := os.Stat(dir)
@@ -77,6 +78,17 @@ func getRootCmd() *cobra.Command {
 	}
 	root.Flags().StringSliceVarP(&dropInSearchPaths, "path", "p", defaultSearchPath, "Search paths for task drop-in files.")
 
+	var logLevel string
+	root.PersistentFlags().StringVarP(&logLevel, "log", "l", "info", "Log level")
+	cobra.OnInitialize(func() {
+		lvl, err := logrus.ParseLevel(logLevel)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		logrus.SetLevel(lvl)
+	})
+
 	root.AddCommand(describe)
 	root.AddCommand(runActionCommand)
 
@@ -94,6 +106,7 @@ func parseFile(filePath string, searchPaths []string) deploy.Task {
 	if err != nil {
 		log.Fatalf("Failed to decode target at %s: %s", filePath, err)
 	}
+	dump("file loaded from "+filePath, target)
 
 	dropins, err := deploy.LoadDropIns(target.FileName, searchPaths)
 	if err != nil {
@@ -110,11 +123,18 @@ func parseFile(filePath string, searchPaths []string) deploy.Task {
 	if err != nil {
 		log.Fatalf("Failed to apply dropins to %s: %s", target.FileName, err)
 	}
+	dump("drop-ins applied", tsk)
 
 	tsk, err = deploy.ApplyEnvironment(tsk)
 	if err != nil {
 		log.Fatalf("Failed to apply environment to task %s: %s", target.FileName, err)
 	}
+	dump("environment applied", tsk)
 
 	return *tsk
+}
+
+func dump(prefix string, x interface{}) {
+	b, _ := json.MarshalIndent(x, "", "  ")
+	logrus.Debugf("dump %s: \n%s", prefix, string(b))
 }
