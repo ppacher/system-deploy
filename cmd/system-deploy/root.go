@@ -111,5 +111,10 @@ func parseFile(filePath string, searchPaths []string) deploy.Task {
 		log.Fatalf("Failed to apply dropins to %s: %s", target.FileName, err)
 	}
 
+	tsk, err = deploy.ApplyEnvironment(tsk)
+	if err != nil {
+		log.Fatalf("Failed to apply environment to task %s: %s", target.FileName, err)
+	}
+
 	return *tsk
 }
