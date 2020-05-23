@@ -178,7 +178,7 @@ func LoadDropIns(unitName string, searchPath []string) ([]*DropIn, error) {
 	dropins := make([]*DropIn, len(files))
 	for idx, filePath := range files {
 		t, meta, err := decodeFile(filePath)
-		if err != nil {
+		if err != nil && (err != ErrNoSections || meta == nil) {
 			// don't ignore ErrNotExist here because
 			// it existed just a few seconds ago!
 			return nil, fmt.Errorf("%s: %w", filePath, err)

@@ -89,7 +89,9 @@ func decode(filePath string, r io.Reader) (*Task, *unit.Section, error) {
 	}
 
 	if len(task.Sections) == 0 {
-		return nil, metaSection, ErrNoSections
+		// we must return task and metaSection here because
+		// ErrNoSections is ignored when loading drop-ins.
+		return task, metaSection, ErrNoSections
 	}
 
 	return task, metaSection, nil
