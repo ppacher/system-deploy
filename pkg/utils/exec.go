@@ -16,6 +16,16 @@ type ExecOptions struct {
 	PipeOutput bool
 	PipeInput  bool
 	Env        map[string]string
+	ExitCode   *int64
+}
+
+type ExitCodeError struct {
+	Code   int
+	Output string
+}
+
+func (ece *ExitCodeError) Error() string {
+	return fmt.Sprintf("command returned %d\n%s", ece.Code, ece.Output)
 }
 
 // ExecCommand executes cmd and returns any error encountered.
@@ -63,9 +73,18 @@ func ExecCommand(ctx context.Context, workDir string, cmd string, opts *ExecOpti
 	if err := c.Run(); err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			ws := exitError.Sys().(syscall.WaitStatus)
-			return fmt.Errorf("command returned %d\n%s", ws.ExitStatus(), output.String())
+
+			if opts != nil && opts.ExitCode != nil {
+				*opts.ExitCode = int64(ws.ExitStatus())
+			}
+
+			return &ExitCodeError{Code: ws.ExitStatus(), Output: output.String()}
 		}
 		return fmt.Errorf("command failed: %w", err)
+	}
+
+	if opts != nil && opts.ExitCode != nil {
+		*opts.ExitCode = 0
 	}
 
 	return nil

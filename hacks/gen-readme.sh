@@ -1,6 +1,6 @@
 #!/bin/bash
 
-go build -o /tmp/deploy ./cmd/deploy 
+go build -o /tmp/deploy ./cmd/system-deploy 
 
 DOCS=./docs/docs/actions/
 

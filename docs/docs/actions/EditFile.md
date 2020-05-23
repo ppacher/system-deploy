@@ -5,6 +5,7 @@ title: EditFile
 nav_order: 1
 ---
 # EditFile
+
 Manipulate existing files using SED like syntax
 
 ## Options

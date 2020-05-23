@@ -5,6 +5,7 @@ title: Exec
 nav_order: 1
 ---
 # Exec
+
 Execute one or more commands
 
 ## Options
@@ -33,6 +34,14 @@ Execute one or more commands
    **Environment** ([]string)  
       Add environment variables for the command. The value should follow the
       format KEY=VALUE
+
+   **ChangedOnExit** (int)  
+      If set, the task will be marked as changed/updated if Command= returns
+      with the specified exit code.
+
+   **PristineOnExit** (int)  
+      If set, the task will be marked as unchanged/pristine if Command= returns
+      with the specified exit code.
 
 
 ## Contact

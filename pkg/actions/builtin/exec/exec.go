@@ -65,6 +65,16 @@ func init() {
 				Type:        deploy.StringSliceType,
 				Description: "Add environment variables for the command. The value should follow the format KEY=VALUE",
 			},
+			{
+				Name:        "ChangedOnExit",
+				Type:        deploy.IntType,
+				Description: "If set, the task will be marked as changed/updated if Command= returns with the specified exit code.",
+			},
+			{
+				Name:        "PristineOnExit",
+				Type:        deploy.IntType,
+				Description: "If set, the task will be marked as unchanged/pristine if Command= returns with the specified exit code.",
+			},
 		},
 	})
 }
@@ -180,15 +190,43 @@ func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
 		}
 	}
 
+	var exitCode *int64
+	ecChanged := false
+
+	exitCodeChanged, err := sec.GetInt("ChangedOnExit")
+	if err != nil && err != unit.ErrOptionNotSet {
+		return nil, err
+	}
+	if err != unit.ErrOptionNotSet {
+		exitCode = &exitCodeChanged
+		ecChanged = true
+	}
+
+	exitCodeNotChanged, err := sec.GetInt("PristineOnExit")
+	if err != nil && err != unit.ErrOptionNotSet {
+		return nil, err
+	}
+
+	if err != unit.ErrOptionNotSet {
+		if exitCode != nil {
+			return nil, fmt.Errorf("cannot use ChangedOnExit and PristineOnExit at the same time")
+		}
+
+		exitCode = &exitCodeNotChanged
+		ecChanged = false
+	}
+
 	a := &action{
-		taskDir: workDir,
-		chroot:  chroot,
-		cmd:     cmd,
-		user:    uid,
-		group:   gid,
-		pipeIn:  pipeIn,
-		pipeOut: pipeOut,
-		environ: environ,
+		taskDir:         workDir,
+		chroot:          chroot,
+		cmd:             cmd,
+		user:            uid,
+		group:           gid,
+		pipeIn:          pipeIn,
+		pipeOut:         pipeOut,
+		environ:         environ,
+		exitCode:        exitCode,
+		exitCodeChanged: ecChanged,
 	}
 
 	return a, nil
@@ -197,14 +235,16 @@ func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
 type action struct {
 	actions.Base
 
-	taskDir string
-	chroot  string
-	user    int
-	group   int
-	cmd     string
-	environ map[string]string
-	pipeOut bool
-	pipeIn  bool
+	taskDir         string
+	chroot          string
+	user            int
+	group           int
+	cmd             string
+	environ         map[string]string
+	pipeOut         bool
+	pipeIn          bool
+	exitCode        *int64
+	exitCodeChanged bool
 }
 
 func (a *action) Name() string {
@@ -217,11 +257,13 @@ func (a *action) Prepare(_ actions.ExecGraph) error {
 }
 
 func (a *action) Execute(ctx context.Context) (bool, error) {
+	var exitCode int64
 	opts := &utils.ExecOptions{
 		Attrs:      &syscall.SysProcAttr{},
 		PipeInput:  a.pipeIn,
 		PipeOutput: a.pipeOut,
 		Env:        a.environ,
+		ExitCode:   &exitCode,
 	}
 
 	hasAttrs := false
@@ -243,9 +285,24 @@ func (a *action) Execute(ctx context.Context) (bool, error) {
 		opts.Attrs = nil
 	}
 
-	if err := utils.ExecCommand(ctx, a.taskDir, a.cmd, opts); err != nil {
-		return false, err
+	hasChanged := func() bool {
+		if a.exitCode != nil {
+			if *a.exitCode == exitCode {
+				return a.exitCodeChanged
+			}
+			return !a.exitCodeChanged
+		}
+
+		return true
 	}
 
-	return true, nil
+	if err := utils.ExecCommand(ctx, a.taskDir, a.cmd, opts); err != nil {
+		if _, ok := err.(*utils.ExitCodeError); ok && a.exitCode != nil {
+			return hasChanged(), nil
+		}
+
+		return hasChanged(), err
+	}
+
+	return hasChanged(), nil
 }
