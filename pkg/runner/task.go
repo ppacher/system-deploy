@@ -61,6 +61,7 @@ func (t *Task) Prepare(graph actions.ExecGraph) error {
 func (t *Task) Execute(ctx context.Context, log actions.Logger) (bool, error) {
 	var changed bool
 	for _, a := range t.actions {
+		log.Debugf("%s: actions %s", t.name, a.Name())
 		if r, ok := a.(actions.Executor); ok {
 			c, err := r.Execute(ctx)
 			if err != nil {

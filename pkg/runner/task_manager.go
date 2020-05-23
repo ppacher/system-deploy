@@ -53,6 +53,7 @@ func (tm *TaskManager) AddTask(name string, target deploy.Task) error {
 
 	for idx := range target.Sections {
 		section := target.Sections[idx]
+		tm.log.Debugf("%s: setup action %s", name, section.Name)
 		action, err := actions.Setup(section.Name, tm.log, target, section)
 		if err != nil {
 			return fmt.Errorf("setup failed for %s: %w", name, err)
