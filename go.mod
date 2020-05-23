@@ -3,6 +3,7 @@ module github.com/ppacher/system-deploy
 go 1.14
 
 require (
+	github.com/a8m/envsubst v1.1.0
 	github.com/fatih/color v1.9.0
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568
 	github.com/google/renameio v0.1.0
