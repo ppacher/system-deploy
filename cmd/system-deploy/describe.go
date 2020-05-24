@@ -58,6 +58,15 @@ func init() {
 	describe.Flags().BoolVar(&markdown, "markdown", false, "Print output in markdown")
 }
 
+func getTaskDummyPlugin() actions.Plugin {
+	return actions.Plugin{
+		Name:        "Task",
+		Description: taskDescription,
+		Website:     "https://ppacher.github.io/system-deploy",
+		Options:     deploy.TaskOptions(),
+	}
+}
+
 var describe = &cobra.Command{
 	Use:   "describe",
 	Short: "Display documentation for an action",
@@ -73,13 +82,7 @@ var describe = &cobra.Command{
 
 		var plg actions.Plugin
 		if args[0] == "task" {
-			plg = actions.Plugin{
-				Name:        "Task",
-				Description: "The tasks meta section",
-				Website:     "https://ppacher.github.io/system-deploy",
-				Author:      "Patrick Pacher",
-				Options:     deploy.TaskOptions(),
-			}
+			plg = getTaskDummyPlugin()
 		} else {
 			var ok bool
 			plg, ok = actions.GetPlugin(args[0])
@@ -159,3 +162,8 @@ func wrap(text string, indent string) string {
 	lines := strings.Split(wordwrap.WrapString(text, uint(80-len(indent))), "\n")
 	return strings.Join(lines, "\n"+indent)
 }
+
+const taskDescription = "The `[Task]` section must be available in each deploy unit file and contains metadata for the task like a human-readable " +
+	"description or the tasks state (Disabled or Masked). Users may also defined condition and assertions in the tasks meta section that may disable or " +
+	"fail the task based on environmental conditions. All properties starting with `Condition` will disable the task if not matched, all properties starting " +
+	"with `Assert` will cause *system-deploy* to throw an error and exit."

@@ -10,15 +10,15 @@ Manipulate existing files using SED like syntax
 
 ## Options
 
-   **Sed** ([]string)  
+   **Sed**= ([]string)  
       Apply an SED instruction on the target file. May be specified multiple
       times. Refer to https://github.com/rwtodd/Go.Sed for more information
       about the regexp syntax.
 
-   **File** (string)  
+   **File**= (string)  
       Path to the file to modify (required)
 
-   **IgnoreMissing** (bool)  
+   **IgnoreMissing**= (bool)  
       Check if the file exists and if not, don't do anything.
 
 

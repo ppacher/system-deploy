@@ -11,10 +11,10 @@ the installation behavior use the Exec section instead.
 
 ## Options
 
-   **AptPkgs** ([]string)  
+   **AptPkgs**= ([]string)  
       Packages to install if APT is available
 
-   **PacmanPkgs** ([]string)  
+   **PacmanPkgs**= ([]string)  
       Packages to install if Pacman is available
 
 

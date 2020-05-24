@@ -24,5 +24,16 @@ gendoc Exec
 gendoc OnChange
 gendoc EditFile
 
+cat > ./docs/docs/concepts/task-props.md <<EOT
+---
+layout: default
+parent: Documentation
+title: Task Properties
+nav_order: 3
+---
+EOT
+
+/tmp/deploy describe task --markdown >> ./docs/docs/concepts/task-props.md
+
 # finally, update the search index as well
 (cd docs && bundle exec just-the-docs rake search:init)
