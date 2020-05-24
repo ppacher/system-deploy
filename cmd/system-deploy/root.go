@@ -18,6 +18,12 @@ import (
 	_ "github.com/ppacher/system-deploy/pkg/actions/builtin"
 )
 
+func init() {
+	// Register all supported conditions from the
+	// condition package.
+	deploy.RegisterAllConditions()
+}
+
 func getRootCmd() *cobra.Command {
 	var dropInSearchPaths []string
 
@@ -106,7 +112,6 @@ func parseFile(filePath string, searchPaths []string) deploy.Task {
 	if err != nil {
 		log.Fatalf("Failed to decode target at %s: %s", filePath, err)
 	}
-	dump("file loaded from "+filePath, target)
 
 	dropins, err := deploy.LoadDropIns(target.FileName, searchPaths)
 	if err != nil {
@@ -119,22 +124,22 @@ func parseFile(filePath string, searchPaths []string) deploy.Task {
 		log.Fatalf("Failed to apply dropins to %s: %s", target.FileName, err)
 	}
 
-	tsk, err := deploy.ApplyDropIns(target, dropins, specs)
-	if err != nil {
+	if err := deploy.ApplyDropIns(target, dropins, specs); err != nil {
 		log.Fatalf("Failed to apply dropins to %s: %s", target.FileName, err)
 	}
-	dump("drop-ins applied", tsk)
 
-	tsk, err = deploy.ApplyEnvironment(tsk)
-	if err != nil {
+	if err = deploy.ApplyEnvironment(target); err != nil {
 		log.Fatalf("Failed to apply environment to task %s: %s", target.FileName, err)
 	}
-	dump("environment applied", tsk)
+	dump(target.FileName, *target)
 
-	return *tsk
+	return *target
 }
 
 func dump(prefix string, x interface{}) {
-	b, _ := json.MarshalIndent(x, "", "  ")
+	b, err := json.MarshalIndent(x, "", "  ")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 	logrus.Debugf("dump %s: \n%s", prefix, string(b))
 }

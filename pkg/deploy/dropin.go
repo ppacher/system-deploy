@@ -30,13 +30,11 @@ var readDir func(path string) ([]os.FileInfo, error) = ioutil.ReadDir
 // to tasks with unique section names. That is, if a task specifies
 // the same action multiple times (like multiple [Copy] sections),
 // drop-ins cannot be applied to that task.
-func ApplyDropIns(t *Task, dropins []*DropIn, specs map[string]map[string]OptionSpec) (*Task, error) {
-	copy := t.Clone()
-
+func ApplyDropIns(t *Task, dropins []*DropIn, specs map[string]map[string]OptionSpec) error {
 	slm := make(map[string]*unit.Section)
 
-	for idx := range copy.Sections {
-		sec := copy.Sections[idx]
+	for idx := range t.Sections {
+		sec := t.Sections[idx]
 		sn := strings.ToLower(sec.Name)
 		if _, ok := slm[sn]; ok {
 			// that section is defined multiple times
@@ -49,8 +47,8 @@ func ApplyDropIns(t *Task, dropins []*DropIn, specs map[string]map[string]Option
 	}
 
 	for _, d := range dropins {
-		if err := mergeMetaSection(copy, d); err != nil {
-			return nil, err
+		if err := mergeMetaSection(t, d); err != nil {
+			return err
 		}
 
 		for _, dropInSec := range d.Task.Sections {
@@ -58,29 +56,29 @@ func ApplyDropIns(t *Task, dropins []*DropIn, specs map[string]map[string]Option
 
 			s, ok := slm[sn]
 			if !ok {
-				return nil, ErrDropInSectionNotExists
+				return ErrDropInSectionNotExists
 			}
 
 			sectionSpec, ok := specs[sn]
 			if s == nil || !ok {
-				return nil, ErrDropInSectionNotAllowed
+				return ErrDropInSectionNotAllowed
 			}
 
 			if err := mergeSections(s, dropInSec, sectionSpec); err != nil {
-				return nil, err
+				return err
 			}
 		}
 	}
 
 	// rebuild the section slice.
-	for idx, sec := range copy.Sections {
+	for idx, sec := range t.Sections {
 		val := slm[strings.ToLower(sec.Name)]
 		if val != nil {
-			copy.Sections[idx] = *val
+			t.Sections[idx] = *val
 		}
 	}
 
-	return copy, nil
+	return nil
 }
 
 func mergeMetaSection(t *Task, dropIn *DropIn) error {

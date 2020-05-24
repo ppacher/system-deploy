@@ -63,6 +63,7 @@ func (tm *TaskManager) AddTask(name string, target deploy.Task) error {
 	}
 
 	t := &Task{
+		task:     &target,
 		actions:  targetActions,
 		name:     name,
 		masked:   abool.NewBool(target.StartMasked),

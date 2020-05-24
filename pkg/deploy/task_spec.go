@@ -1,6 +1,8 @@
 package deploy
 
-import "github.com/ppacher/system-deploy/pkg/unit"
+import (
+	"github.com/ppacher/system-deploy/pkg/unit"
+)
 
 type taskMetaOption struct {
 	OptionSpec

@@ -44,12 +44,10 @@ func LoadEnv(t *Task) error {
 // to all unit options. If tsk.Environment is nil, ApplyEnvironment
 // tries to call LoadEnv(tsk) first. Note that ApplyEnvironment does
 // not substitude variables in the tasks meta section.
-func ApplyEnvironment(tsk *Task) (*Task, error) {
-	tsk = tsk.Clone()
-
+func ApplyEnvironment(tsk *Task) error {
 	if tsk.Environment == nil {
 		if err := LoadEnv(tsk); err != nil {
-			return nil, err
+			return err
 		}
 	}
 
@@ -58,7 +56,7 @@ func ApplyEnvironment(tsk *Task) (*Task, error) {
 			var err error
 			opt.Value, err = tsk.Envsubst(tsk.FileName, opt.Value)
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			sec.Options[optIdx] = opt
@@ -67,7 +65,7 @@ func ApplyEnvironment(tsk *Task) (*Task, error) {
 		tsk.Sections[idx] = sec
 	}
 
-	return tsk, nil
+	return nil
 }
 
 func loadEnv(file string, env map[string]string) (map[string]string, error) {

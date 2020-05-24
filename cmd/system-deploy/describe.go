@@ -108,6 +108,11 @@ var describe = &cobra.Command{
 			fmt.Printf("\n%s\n\n", header("Options"))
 
 			for _, opt := range plg.Options {
+				// skip internal options.
+				if opt.Internal {
+					continue
+				}
+
 				required := ""
 				defaultValue := ""
 
@@ -119,9 +124,12 @@ var describe = &cobra.Command{
 					defaultValue = fmt.Sprintf(" (Default: %q)", opt.Default)
 				}
 
-				fmt.Printf("   %s (%s)  \n      %s\n\n",
-					bold(opt.Name),
-					opt.Type.String(),
+				fmt.Printf("   %s= (%s)", bold(opt.Name), opt.Type.String())
+				for _, alias := range opt.Aliases {
+					fmt.Printf("  \n   %s=", bold(alias))
+				}
+
+				fmt.Printf("  \n      %s\n\n",
 					wrap(opt.Description+required+defaultValue, "      "),
 				)
 			}

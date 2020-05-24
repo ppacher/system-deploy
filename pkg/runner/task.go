@@ -4,14 +4,18 @@ import (
 	"context"
 
 	"github.com/ppacher/system-deploy/pkg/actions"
+	"github.com/ppacher/system-deploy/pkg/deploy"
+	"github.com/sirupsen/logrus"
 	"github.com/tevino/abool"
 )
 
 type Task struct {
+	task    *deploy.Task
 	actions []actions.Action
 
-	name     string
-	masked   *abool.AtomicBool
+	name   string
+	masked *abool.AtomicBool
+
 	disabled *abool.AtomicBool
 }
 
@@ -44,10 +48,29 @@ func (t *Task) isMasked() bool {
 // Prepare calls the perpare method of each action defined
 // in the task.
 func (t *Task) Prepare(graph actions.ExecGraph) error {
-	for _, a := range t.actions {
-		if p, ok := a.(actions.Preparer); ok {
-			if err := p.Prepare(graph); err != nil {
-				return err
+
+	cond, err := deploy.EvaluateConditions(t.task)
+	if err != nil {
+		logrus.Debugf("%s: conditon %s: %s", t.name, cond.Name, err)
+		if cond.Assertion {
+			// TODO(ppacher): should we mark the task
+			// as "pre-failed" and execute all others
+			// until we hit it?
+			return err
+		}
+
+		// Condition failed, mark task as disabled.
+		t.disabled.Set()
+	}
+
+	// don't even try to prepare the task if it's already
+	// disabled.
+	if t.disabled.IsSet() {
+		for _, a := range t.actions {
+			if p, ok := a.(actions.Preparer); ok {
+				if err := p.Prepare(graph); err != nil {
+					return err
+				}
 			}
 		}
 	}

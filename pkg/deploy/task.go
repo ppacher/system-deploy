@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ppacher/system-deploy/pkg/condition"
 	"github.com/ppacher/system-deploy/pkg/unit"
 )
 
@@ -36,6 +37,9 @@ type Task struct {
 
 	// Environment holds the parsed environment.
 	Environment []string
+
+	// Conditions is a list of conditions that must match.
+	Conditions []condition.Instance
 }
 
 // DecodeFile is like Decode but reads the task from
@@ -135,6 +139,11 @@ func (tsk *Task) Clone() *Task {
 	if tsk.Environment != nil {
 		n.Environment = make([]string, len(tsk.Environment))
 		copy(n.Environment, tsk.Environment)
+	}
+
+	if tsk.Conditions != nil {
+		n.Conditions = make([]condition.Instance, len(tsk.Conditions))
+		copy(n.Conditions, tsk.Conditions)
 	}
 
 	if len(tsk.Sections) > 0 {

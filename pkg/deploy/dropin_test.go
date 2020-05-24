@@ -172,7 +172,8 @@ func TestApplyDropIns(t *testing.T) {
 		},
 	}
 
-	res, err := ApplyDropIns(tsk, []*DropIn{d1, d2}, specs)
+	res := tsk.Clone()
+	err := ApplyDropIns(res, []*DropIn{d1, d2}, specs)
 	assert.NoError(t, err)
 	assert.Equal(t, &Task{
 		Disabled:    true,
@@ -215,7 +216,7 @@ func TestApplyDropInsNotAllowed(t *testing.T) {
 		},
 	}
 
-	tsk, err := ApplyDropIns(tsk,
+	err := ApplyDropIns(tsk,
 		[]*DropIn{
 			{
 				Task: &Task{
@@ -232,7 +233,6 @@ func TestApplyDropInsNotAllowed(t *testing.T) {
 		},
 	)
 
-	assert.Nil(t, tsk)
 	assert.Error(t, err)
 }
 
@@ -241,7 +241,7 @@ func TestApplyDropInsSectionNotExists(t *testing.T) {
 		Sections: []unit.Section{},
 	}
 
-	tsk, err := ApplyDropIns(tsk,
+	err := ApplyDropIns(tsk,
 		[]*DropIn{
 			{
 				Task: &Task{
@@ -258,7 +258,6 @@ func TestApplyDropInsSectionNotExists(t *testing.T) {
 		},
 	)
 
-	assert.Nil(t, tsk)
 	assert.Error(t, err)
 }
 
@@ -271,7 +270,7 @@ func TestApplyDropInsOptionNotExists(t *testing.T) {
 		},
 	}
 
-	tsk, err := ApplyDropIns(tsk,
+	err := ApplyDropIns(tsk,
 		[]*DropIn{
 			{
 				Task: &Task{
@@ -293,6 +292,5 @@ func TestApplyDropInsOptionNotExists(t *testing.T) {
 		},
 	)
 
-	assert.Nil(t, tsk)
 	assert.Error(t, err)
 }

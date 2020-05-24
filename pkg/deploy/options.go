@@ -21,6 +21,13 @@ type OptionSpec struct {
 	// Name is the name of the option.
 	Name string
 
+	// Aliases is a set of aliases supported by this
+	// option spec. If set, there should be a "Interal"
+	// option for each alias name. Otherwise system-deploy
+	// will throw an error if an alias is used in the
+	// configuration. Use with care!
+	Aliases []string
+
 	// Description is a human readable description of
 	// the option.
 	Description string
@@ -36,6 +43,10 @@ type OptionSpec struct {
 	// This value is only for help purposes and is NOT SET
 	// as the default for that option.
 	Default string
+
+	// Internal may be set to true to omit the option from
+	// the help page.
+	Internal bool
 }
 
 // AllowAny is a special option that can be used to disable
