@@ -174,6 +174,7 @@ func (tm *TaskManager) DisableTask(task string) error {
 		return err
 	}
 
+	tm.log.Debugf("Disabling task %s", t.name)
 	t.disabled.Set()
 	return nil
 }

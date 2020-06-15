@@ -65,7 +65,7 @@ func (t *Task) Prepare(graph actions.ExecGraph) error {
 
 	// don't even try to prepare the task if it's already
 	// disabled.
-	if t.disabled.IsSet() {
+	if !t.disabled.IsSet() {
 		for _, a := range t.actions {
 			if p, ok := a.(actions.Preparer); ok {
 				if err := p.Prepare(graph); err != nil {
