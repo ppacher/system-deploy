@@ -23,23 +23,23 @@ will be fixed in a later release.
 
 ## Options
 
-   **Source** (string)  
+   **Source**= (string)  
       The source file to copy to Destination. (required)
 
-   **Destination** (string)  
+   **Destination**= (string)  
       The destination path where Source should be copied to. (required)
 
-   **CreateDirectories** (bool)  
+   **CreateDirectories**= (bool)  
       If set to true, missing directories in Destination will be created.
       (Default: "no")
 
-   **FileMode** (int)  
+   **FileMode**= (int)  
       The mode bits (before umask) to use for the destination file. If unset the
       source filesmode bits will be used. The destination files mode will be
       changed to match FileMode= even if the content is already correct.Note
       that Mode is ingnored when copying directories.
 
-   **DirectoryMode** (int)  
+   **DirectoryMode**= (int)  
       When creating Destination path (CreateDirectories=yes) the mode bits
       (before umask) for that directories. (Default: "0755")
 

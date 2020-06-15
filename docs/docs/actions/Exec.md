@@ -10,36 +10,36 @@ Execute one or more commands
 
 ## Options
 
-   **Command** (string)  
+   **Command**= (string)  
       The command to execute. (required)
 
-   **WorkingDirectory** (string)  
+   **WorkingDirectory**= (string)  
       The working directory for the command
 
-   **Chroot** (string)  
+   **Chroot**= (string)  
       Chroot for the command
 
-   **User** (string)  
+   **User**= (string)  
       Execute the command as User (either name or ID)
 
-   **Group** (string)  
+   **Group**= (string)  
       Execute the command under Group (either name or ID)
 
-   **DisplayOutput** (bool)  
+   **DisplayOutput**= (bool)  
       Display command output (Default: "no")
 
-   **ForwardStdin** (bool)  
+   **ForwardStdin**= (bool)  
       Forward current stdin to the command (Default: "no")
 
-   **Environment** ([]string)  
+   **Environment**= ([]string)  
       Add environment variables for the command. The value should follow the
       format KEY=VALUE
 
-   **ChangedOnExit** (int)  
+   **ChangedOnExit**= (int)  
       If set, the task will be marked as changed/updated if Command= returns
       with the specified exit code.
 
-   **PristineOnExit** (int)  
+   **PristineOnExit**= (int)  
       If set, the task will be marked as unchanged/pristine if Command= returns
       with the specified exit code.
 

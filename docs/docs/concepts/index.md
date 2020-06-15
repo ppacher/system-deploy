@@ -22,6 +22,7 @@ features or missing sections.
 
 #### Table Of Contents
 1. [Tasks](./10-tasks.md)
+1. [Task Properties and Conditions](./task-props.md)
 1. [Drop-in Files](./20-dropins.md)
 1. [Execution Graph](./30-execution-graph.md)
 

@@ -10,11 +10,11 @@ Perform post operations after the current task.
 
 ## Options
 
-   **Run** ([]string)  
+   **Run**= ([]string)  
       Run a command. May be specified multiple times. Note that errors are only
       logged and don't abort subsequent tasks. Use Unmask for more control
 
-   **Unmask** ([]string)  
+   **Unmask**= ([]string)  
       Unmask a task. May be specified multiple times.
 
 
