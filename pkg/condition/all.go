@@ -12,14 +12,14 @@ var BuiltinConditions = []Condition{
 		Name:        "OperatingSystem",
 		Description: "Match against the operating system. All values from GOOS are supported.",
 		check: func(value string) (bool, error) {
-			return strings.ToLower(runtime.GOOS) == strings.ToLower(value), nil
+			return strings.EqualFold(runtime.GOOS, value), nil
 		},
 	},
 	{
 		Name:        "Architecture",
 		Description: "Match against the architecture system-deploy was compiled for.",
 		check: func(value string) (bool, error) {
-			return strings.ToLower(runtime.GOARCH) == strings.ToLower(value), nil
+			return strings.EqualFold(runtime.GOARCH, value), nil
 		},
 	},
 	{

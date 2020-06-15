@@ -16,7 +16,7 @@ type Condition struct {
 
 	// check the condition and return the evaluation
 	// result.
-	check func(value string) (bool, error)
+	check func(value string) (bool, error) //nolint:structcheck // it's not unused ...
 }
 
 // Instance is a specific instance of a condition that
