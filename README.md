@@ -1,4 +1,6 @@
-# system-deploy
+<p align="center">
+    <img src="docs/assets/logo.png">
+</p>
 
 *A systemd inspired system configuration and deployment tool*
 
@@ -11,6 +13,8 @@
 `system-deploy` is my personal server management and deployment tool. It's inspired by systemd's unit files and the deployment tool/script used @safing. It currently supports copying files/directories, installing packages and installing/enabling systemd unit files. `system-deploy` is meant to be executed periodically and supports running different actions and tasks when changes are detected.
 
 The compiled binary itself includes help and documentation for almost all supported operations and even some examples.
+
+**Checkout [system-conf](https://github.com/ppacher/system-conf) for a systemd inspired configuration system for Go projects.**
 
 ## Getting Started 
 
