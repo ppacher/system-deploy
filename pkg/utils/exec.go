@@ -65,7 +65,7 @@ func ExecCommand(ctx context.Context, workDir string, cmd string, opts *ExecOpti
 
 		if opts.Env != nil {
 			for k, v := range opts.Env {
-				c.Env = append(c.Env, fmt.Sprintf("%s=%q", k, v))
+				c.Env = append(c.Env, fmt.Sprintf("%s=%s", k, v))
 			}
 		}
 	}
