@@ -79,6 +79,66 @@ func init() {
 	})
 }
 
+func resolveUserGroup(userName, groupName string) (uid uint32, gid uint32, err error) {
+	var uidSet bool
+
+	if userName != "" {
+		u, err := user.Lookup(userName)
+		if err != nil {
+			u, err = user.LookupId(userName)
+		}
+
+		if err != nil {
+			return 0, 0, fmt.Errorf("user %q does not exist", userName)
+		}
+
+		uid64, err := strconv.ParseInt(u.Uid, 0, 32)
+		if err != nil {
+			return 0, 0, err
+		}
+		gid64, err := strconv.ParseInt(u.Gid, 0, 32)
+		if err != nil {
+			return 0, 0, err
+		}
+
+		uid = uint32(uid64)
+		gid = uint32(gid64)
+		uidSet = true
+	}
+
+	if groupName != "" {
+		grp, err := user.LookupGroup(groupName)
+		if err != nil {
+			grp, err = user.LookupGroupId(groupName)
+		}
+
+		if err != nil {
+			return 0, 0, fmt.Errorf("group %q does not exist", groupName)
+		}
+
+		gid64, err := strconv.ParseInt(grp.Gid, 0, 32)
+		if err != nil {
+			return 0, 0, err
+		}
+
+		gid = uint32(gid64)
+
+		if !uidSet {
+			cur, err := user.Current()
+			if err != nil {
+				return 0, 0, err
+			}
+
+			uid64, err := strconv.ParseInt(cur.Uid, 0, 32)
+			if err != nil {
+				return 0, 0, err
+			}
+			uid = uint32(uid64)
+		}
+	}
+	return uid, gid, nil
+}
+
 func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
 	cmd, err := sec.GetString("Command")
 	if err != nil {
@@ -99,67 +159,14 @@ func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
 		return nil, err
 	}
 
-	uid := -1
-	gid := -1
-
 	userName, err := sec.GetString("User")
 	if err != nil && !unit.IsNotSet(err) {
 		return nil, err
-	} else if err == nil {
-		u, err := user.Lookup(userName)
-		if err != nil {
-			u, err = user.LookupId(userName)
-		}
-
-		if err != nil {
-			return nil, fmt.Errorf("user %q does not exist", userName)
-		}
-
-		uid64, err := strconv.ParseInt(u.Uid, 0, 32)
-		if err != nil {
-			return nil, err
-		}
-		gid64, err := strconv.ParseInt(u.Gid, 0, 32)
-		if err != nil {
-			return nil, err
-		}
-
-		uid = int(uid64)
-		gid = int(gid64)
 	}
 
 	groupName, err := sec.GetString("Group")
 	if err != nil && !unit.IsNotSet(err) {
 		return nil, err
-	} else if err == nil {
-		grp, err := user.LookupGroup(groupName)
-		if err != nil {
-			grp, err = user.LookupGroupId(groupName)
-		}
-
-		if err != nil {
-			return nil, fmt.Errorf("group %q does not exist", groupName)
-		}
-
-		gid64, err := strconv.ParseInt(grp.Gid, 0, 32)
-		if err != nil {
-			return nil, err
-		}
-
-		gid = int(gid64)
-
-		if uid == -1 {
-			cur, err := user.Current()
-			if err != nil {
-				return nil, err
-			}
-
-			uid64, err := strconv.ParseInt(cur.Uid, 0, 32)
-			if err != nil {
-				return nil, err
-			}
-			uid = int(uid64)
-		}
 	}
 
 	pipeOut, err := sec.GetBool("DisplayOutput")
@@ -220,8 +227,8 @@ func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
 		taskDir:         workDir,
 		chroot:          chroot,
 		cmd:             cmd,
-		user:            uid,
-		group:           gid,
+		user:            userName,
+		group:           groupName,
 		pipeIn:          pipeIn,
 		pipeOut:         pipeOut,
 		environ:         environ,
@@ -237,8 +244,8 @@ type action struct {
 
 	taskDir         string
 	chroot          string
-	user            int
-	group           int
+	user            string
+	group           string
 	cmd             string
 	environ         map[string]string
 	pipeOut         bool
@@ -272,10 +279,15 @@ func (a *action) Execute(ctx context.Context) (bool, error) {
 		opts.Attrs.Chroot = a.chroot
 	}
 
-	if a.user != -1 && a.group != -1 {
+	if a.user != "" || a.group != "" {
+		uid, gid, err := resolveUserGroup(a.user, a.group)
+		if err != nil {
+			return false, err
+		}
+
 		opts.Attrs.Credential = &syscall.Credential{
-			Uid:         uint32(a.user),
-			Gid:         uint32(a.group),
+			Uid:         uid,
+			Gid:         gid,
 			NoSetGroups: true,
 		}
 		hasAttrs = true

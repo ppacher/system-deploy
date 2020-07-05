@@ -2,6 +2,7 @@ package condition
 
 import (
 	"os"
+	"os/user"
 	"runtime"
 	"strings"
 )
@@ -57,6 +58,38 @@ var BuiltinConditions = []Condition{
 			}
 
 			return stat.IsDir(), nil
+		},
+	},
+	{
+		Name:        "UserExists",
+		Description: "Test against the existence of a user or userid",
+		check: func(value string) (bool, error) {
+			_, err := user.Lookup(value)
+			if err == nil {
+				return true, nil
+			}
+
+			_, err = user.LookupId(value)
+			if err == nil {
+				return true, nil
+			}
+			return false, nil
+		},
+	},
+	{
+		Name:        "GroupExists",
+		Description: "Test against the existence of a group or groupid",
+		check: func(value string) (bool, error) {
+			_, err := user.LookupGroup(value)
+			if err == nil {
+				return true, nil
+			}
+
+			_, err = user.LookupGroupId(value)
+			if err == nil {
+				return true, nil
+			}
+			return false, nil
 		},
 	},
 }

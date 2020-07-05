@@ -51,6 +51,14 @@ throw an error and exit.
    **AssertDirectoryExists**=  
       Test against the existence of a directory.
 
+   **ConditionUserExists**= ([]string)  
+   **AssertUserExists**=  
+      Test against the existence of a user or userid
+
+   **ConditionGroupExists**= ([]string)  
+   **AssertGroupExists**=  
+      Test against the existence of a group or groupid
+
 
 ## Contact
 
