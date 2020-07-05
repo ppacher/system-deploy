@@ -8,9 +8,9 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/actions"
 	"github.com/ppacher/system-deploy/pkg/deploy"
-	"github.com/ppacher/system-deploy/pkg/unit"
 	"github.com/ppacher/system-deploy/pkg/utils"
 )
 
@@ -21,58 +21,58 @@ func init() {
 		Setup:       setupAction,
 		Author:      "Patrick Pacher <patrick.pacher@gmail.com>",
 		Website:     "https://github.com/ppacher/system-deploy",
-		Options: []deploy.OptionSpec{
+		Options: []conf.OptionSpec{
 			{
 				Name:        "Command",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 				Description: "The command to execute.",
 				Required:    true,
 			},
 			{
 				Name:        "WorkingDirectory",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 				Description: "The working directory for the command",
 			},
 			{
 				Name:        "Chroot",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 				Description: "Chroot for the command",
 			},
 			{
 				Name:        "User",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 				Description: "Execute the command as User (either name or ID)",
 			},
 			{
 				Name:        "Group",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 				Description: "Execute the command under Group (either name or ID)",
 			},
 			{
 				Name:        "DisplayOutput",
-				Type:        deploy.BoolType,
+				Type:        conf.BoolType,
 				Description: "Display command output",
 				Default:     "no",
 			},
 			{
 				Name:        "ForwardStdin",
-				Type:        deploy.BoolType,
+				Type:        conf.BoolType,
 				Description: "Forward current stdin to the command",
 				Default:     "no",
 			},
 			{
 				Name:        "Environment",
-				Type:        deploy.StringSliceType,
+				Type:        conf.StringSliceType,
 				Description: "Add environment variables for the command. The value should follow the format KEY=VALUE",
 			},
 			{
 				Name:        "ChangedOnExit",
-				Type:        deploy.IntType,
+				Type:        conf.IntType,
 				Description: "If set, the task will be marked as changed/updated if Command= returns with the specified exit code.",
 			},
 			{
 				Name:        "PristineOnExit",
-				Type:        deploy.IntType,
+				Type:        conf.IntType,
 				Description: "If set, the task will be marked as unchanged/pristine if Command= returns with the specified exit code.",
 			},
 		},
@@ -139,7 +139,7 @@ func resolveUserGroup(userName, groupName string) (uid uint32, gid uint32, err e
 	return uid, gid, nil
 }
 
-func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
+func setupAction(task deploy.Task, sec conf.Section) (actions.Action, error) {
 	cmd, err := sec.GetString("Command")
 	if err != nil {
 		return nil, err
@@ -147,7 +147,7 @@ func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
 
 	workDir, err := sec.GetString("WorkingDirectory")
 	if err != nil {
-		if !unit.IsNotSet(err) {
+		if !conf.IsNotSet(err) {
 			return nil, err
 		}
 
@@ -155,27 +155,27 @@ func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
 	}
 
 	chroot, err := sec.GetString("Chroot")
-	if err != nil && !unit.IsNotSet(err) {
+	if err != nil && !conf.IsNotSet(err) {
 		return nil, err
 	}
 
 	userName, err := sec.GetString("User")
-	if err != nil && !unit.IsNotSet(err) {
+	if err != nil && !conf.IsNotSet(err) {
 		return nil, err
 	}
 
 	groupName, err := sec.GetString("Group")
-	if err != nil && !unit.IsNotSet(err) {
+	if err != nil && !conf.IsNotSet(err) {
 		return nil, err
 	}
 
 	pipeOut, err := sec.GetBool("DisplayOutput")
-	if err != nil && !unit.IsNotSet(err) {
+	if err != nil && !conf.IsNotSet(err) {
 		return nil, fmt.Errorf("invalid setting for option 'DisplayOutput': %w", err)
 	}
 
 	pipeIn, err := sec.GetBool("ForwardStdin")
-	if err != nil && !unit.IsNotSet(err) {
+	if err != nil && !conf.IsNotSet(err) {
 		return nil, fmt.Errorf("invalid setting for option 'ForwardStdin': %w", err)
 	}
 
@@ -201,20 +201,20 @@ func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
 	ecChanged := false
 
 	exitCodeChanged, err := sec.GetInt("ChangedOnExit")
-	if err != nil && err != unit.ErrOptionNotSet {
+	if err != nil && err != conf.ErrOptionNotSet {
 		return nil, err
 	}
-	if err != unit.ErrOptionNotSet {
+	if err != conf.ErrOptionNotSet {
 		exitCode = &exitCodeChanged
 		ecChanged = true
 	}
 
 	exitCodeNotChanged, err := sec.GetInt("PristineOnExit")
-	if err != nil && err != unit.ErrOptionNotSet {
+	if err != nil && err != conf.ErrOptionNotSet {
 		return nil, err
 	}
 
-	if err != unit.ErrOptionNotSet {
+	if err != conf.ErrOptionNotSet {
 		if exitCode != nil {
 			return nil, fmt.Errorf("cannot use ChangedOnExit and PristineOnExit at the same time")
 		}

@@ -5,10 +5,10 @@ import (
 	"log"
 	"strings"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/actions"
 	"github.com/ppacher/system-deploy/pkg/deploy"
 	"github.com/ppacher/system-deploy/pkg/runner"
-	"github.com/ppacher/system-deploy/pkg/unit"
 	"github.com/spf13/cobra"
 )
 
@@ -29,24 +29,24 @@ var runActionCommand = &cobra.Command{
 			log.Fatalf("unknown plugin: %s", name)
 		}
 
-		var opts unit.Options
+		var opts conf.Options
 		for _, o := range flagRunOptions {
 			parts := strings.Split(o, "=")
 			key := parts[0]
 			value := strings.Join(parts[1:], "=")
 
-			opts = append(opts, unit.Option{
+			opts = append(opts, conf.Option{
 				Name:  key,
 				Value: value,
 			})
 		}
 
-		s := unit.Section{
+		s := conf.Section{
 			Options: opts,
 			Name:    name,
 		}
 		task := deploy.Task{
-			Sections: []unit.Section{s},
+			Sections: []conf.Section{s},
 		}
 
 		r, err := runner.NewRunner(actions.NewLogger(), []deploy.Task{task})

@@ -1,8 +1,8 @@
 package deploy
 
 import (
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/condition"
-	"github.com/ppacher/system-deploy/pkg/unit"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,23 +27,23 @@ func RegisterCondition(cond condition.Condition) {
 
 	condName := "Condition" + cond.Name
 	assertName := "Assert" + cond.Name
-	condSpec := OptionSpec{
+	condSpec := conf.OptionSpec{
 		Name:        condName,
 		Aliases:     []string{assertName},
 		Description: cond.Description,
-		Type:        StringSliceType,
+		Type:        conf.StringSliceType,
 	}
 	// assertSpec is an internal-only option to handle
 	// the assertName alias of condSpec.
-	assertSpec := OptionSpec{
+	assertSpec := conf.OptionSpec{
 		Name:     assertName,
-		Type:     StringSliceType,
+		Type:     conf.StringSliceType,
 		Internal: true,
 	}
 
 	var values []string
-	getSetter := func(assert bool) func(val unit.Options, t *Task) error {
-		return func(val unit.Options, t *Task) error {
+	getSetter := func(assert bool) func(val conf.Options, t *Task) error {
+		return func(val conf.Options, t *Task) error {
 			if val == nil {
 				values = nil
 

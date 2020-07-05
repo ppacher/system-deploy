@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/actions"
 	"github.com/ppacher/system-deploy/pkg/deploy"
-	"github.com/ppacher/system-deploy/pkg/unit"
 )
 
 // Known package manager binaries.
@@ -26,40 +26,40 @@ func init() {
 		Description: "Run deploy tasks only on certain platforms.",
 		Author:      "Patrick Pacher <patrick.pacher@gmail.com>",
 		Website:     "https://github.com/ppacher/system-deploy",
-		Options: []deploy.OptionSpec{
+		Options: []conf.OptionSpec{
 			{
 				Name:        "OperatingSystem",
 				Description: "Match on the operating system. Supported values are 'darwin', 'linux', 'bsd', 'windows'",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 			},
 			{
 				Name:        "Distribution",
 				Description: "Match on the distribution string. See lsb_release -a",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 			},
 			{
 				Name:        "PackageManager",
 				Description: "Match on the package manager. Detected package managers include `apt`, `snap`, `pacman`, `dnf` and `brew`",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 			},
 		},
 		Setup: setupPlatform,
 	})
 }
 
-func setupPlatform(task deploy.Task, sec unit.Section) (actions.Action, error) {
+func setupPlatform(task deploy.Task, sec conf.Section) (actions.Action, error) {
 	matchOS, err := sec.GetString("OperatingSystem")
-	if err != nil && !unit.IsNotSet(err) {
+	if err != nil && !conf.IsNotSet(err) {
 		return nil, err
 	}
 
 	matchDist, err := sec.GetString("Distribution")
-	if err != nil && !unit.IsNotSet(err) {
+	if err != nil && !conf.IsNotSet(err) {
 		return nil, err
 	}
 
 	matchPkg, err := sec.GetString("PackageManager")
-	if err != nil && !unit.IsNotSet(err) {
+	if err != nil && !conf.IsNotSet(err) {
 		return nil, err
 	}
 

@@ -7,12 +7,17 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/condition"
-	"github.com/ppacher/system-deploy/pkg/unit"
 )
+
+// ErrInvalidTaskSection is returned if a section is invalid.
+var ErrInvalidTaskSection = errors.New("invalid task section")
 
 // Task defines a deploy task.
 type Task struct {
+	file *conf.File
+
 	// FileName is the name of the file that describes this task.
 	FileName string
 
@@ -33,7 +38,7 @@ type Task struct {
 	EnvironmentFiles []string
 
 	// Sections holds the tasks sections.
-	Sections []unit.Section
+	Sections []conf.Section
 
 	// Environment holds the parsed environment.
 	Environment []string
@@ -45,14 +50,14 @@ type Task struct {
 // DecodeFile is like Decode but reads the task from
 // filePath.
 func DecodeFile(filePath string) (*Task, error) {
-	tsk, _, err := decodeFile(filePath)
+	tsk, err := decodeFile(filePath)
 	return tsk, err
 }
 
-func decodeFile(filePath string) (*Task, *unit.Section, error) {
+func decodeFile(filePath string) (*Task, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer f.Close()
 	return decode(filePath, f)
@@ -61,52 +66,59 @@ func decodeFile(filePath string) (*Task, *unit.Section, error) {
 // Decode decodes a deploy task from r and uses the basename
 // of name as the task's name.
 func Decode(filePath string, r io.Reader) (*Task, error) {
-	tsk, _, err := decode(filePath, r)
+	tsk, err := decode(filePath, r)
 	return tsk, err
 }
 
-func decode(filePath string, r io.Reader) (*Task, *unit.Section, error) {
-	sections, err := unit.Deserialize(r)
+func decode(filePath string, r io.Reader) (*Task, error) {
+	file, err := conf.Deserialize(filePath, r)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	task := &Task{
+		file:      file,
 		FileName:  filepath.Base(filePath),
 		Directory: filepath.Dir(filePath),
-		Sections:  sections,
+		Sections:  file.Sections,
 	}
-	var metaSection *unit.Section
 
-	for idx, sec := range sections {
-		if strings.ToLower(sec.Name) == "task" {
-			metaSection = &sec
-
-			if err := decodeMetaData(sec, task); err != nil {
-				return nil, nil, ErrInvalidTaskSection
-			}
-
-			task.Sections = append(sections[:idx], sections[idx+1:]...)
-
-			break
-		}
+	if err := applyMetaData(task); err != nil {
+		return nil, err
 	}
 
 	if len(task.Sections) == 0 {
 		// we must return task and metaSection here because
 		// ErrNoSections is ignored when loading drop-ins.
-		return task, metaSection, ErrNoSections
+		return task, conf.ErrNoSections
 	}
 
-	return task, metaSection, nil
+	return task, nil
 }
 
-func decodeMetaData(section unit.Section, task *Task) error {
+func applyMetaData(task *Task) error {
+	for idx, sec := range task.file.Sections {
+		if strings.ToLower(sec.Name) == "task" {
+
+			if err := decodeMetaData(sec, task); err != nil {
+				return ErrInvalidTaskSection
+			}
+
+			task.Sections = append(task.file.Sections[:idx], task.file.Sections[idx+1:]...)
+
+			break
+		}
+	}
+
+	return nil
+}
+
+func decodeMetaData(section conf.Section, task *Task) error {
 	if strings.ToLower(section.Name) != "task" {
 		return errors.New("invalid section name")
 	}
 
-	specs := make([]OptionSpec, len(taskOptions))
+	specs := make([]conf.OptionSpec, len(taskOptions))
 	for idx, spec := range taskOptions {
 		vals := section.Options.GetStringSlice(spec.Name)
 		if len(vals) > 0 && spec.set != nil {
@@ -118,7 +130,7 @@ func decodeMetaData(section unit.Section, task *Task) error {
 		specs[idx] = spec.OptionSpec
 	}
 
-	return Validate(section.Options, specs)
+	return conf.ValidateOptions(section.Options, specs)
 }
 
 // Clone creates a deep copy of t.
@@ -147,15 +159,15 @@ func (tsk *Task) Clone() *Task {
 	}
 
 	if len(tsk.Sections) > 0 {
-		n.Sections = make([]unit.Section, len(tsk.Sections))
+		n.Sections = make([]conf.Section, len(tsk.Sections))
 		for idx, s := range tsk.Sections {
-			n.Sections[idx] = unit.Section{
+			n.Sections[idx] = conf.Section{
 				Name:    s.Name,
-				Options: make(unit.Options, len(s.Options)),
+				Options: make(conf.Options, len(s.Options)),
 			}
 
 			for optIdx, opt := range s.Options {
-				n.Sections[idx].Options[optIdx] = unit.Option{
+				n.Sections[idx].Options[optIdx] = conf.Option{
 					Name:  opt.Name,
 					Value: opt.Value,
 				}
@@ -163,7 +175,7 @@ func (tsk *Task) Clone() *Task {
 		}
 	} else if tsk.Sections != nil {
 		// make sure we also have an empty slice
-		n.Sections = make([]unit.Section, 0)
+		n.Sections = make([]conf.Section, 0)
 	}
 
 	return n

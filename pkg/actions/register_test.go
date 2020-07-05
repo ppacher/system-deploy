@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/deploy"
-	"github.com/ppacher/system-deploy/pkg/unit"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +14,7 @@ func TestRegisterPlugin(t *testing.T) {
 
 	plg := Plugin{
 		Name: "Test",
-		Setup: func(t deploy.Task, opts unit.Section) (Action, error) {
+		Setup: func(t deploy.Task, opts conf.Section) (Action, error) {
 			if setupCalled {
 				return nil, fmt.Errorf("called")
 			}
@@ -38,11 +38,11 @@ func TestRegisterPlugin(t *testing.T) {
 	assert.Len(t, actionList, 1)
 
 	assert.False(t, setupCalled)
-	_, err := Setup("test", nil, deploy.Task{}, unit.Section{})
+	_, err := Setup("test", nil, deploy.Task{}, conf.Section{})
 	assert.Error(t, err)
 	assert.True(t, setupCalled)
 
-	_, err = Setup("test", nil, deploy.Task{}, unit.Section{})
+	_, err = Setup("test", nil, deploy.Task{}, conf.Section{})
 	assert.Error(t, err)
 	assert.True(t, setupCalled)
 

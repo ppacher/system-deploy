@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/actions"
 	"github.com/ppacher/system-deploy/pkg/deploy"
-	"github.com/ppacher/system-deploy/pkg/unit"
 )
 
 func init() {
@@ -17,40 +17,40 @@ func init() {
 		Author:      "Patrick Pacher <patrick.pacher@gmail.com>",
 		Website:     "https://github.com/ppacher/system-deploy",
 		Setup:       setupAction,
-		Options: []deploy.OptionSpec{
+		Options: []conf.OptionSpec{
 			{
 				Name:        "Install",
 				Description: "Path to a systemd unit file to install.\nMultiple files can be split using a space character. May be specified multiple times.",
-				Type:        deploy.StringSliceType,
+				Type:        conf.StringSliceType,
 			},
 			{
 				Name:        "AutoEnable",
 				Description: "Whether or not to automatically enable all installed units.",
-				Type:        deploy.BoolType,
+				Type:        conf.BoolType,
 				Default:     "no",
 			},
 			{
 				Name:        "EnableNow",
 				Description: "If AutoEnable is true, or Enable option is set, EnableNow controls if those units should be started immediately.",
-				Type:        deploy.BoolType,
+				Type:        conf.BoolType,
 				Default:     "no",
 			},
 			{
 				Name:        "Enable",
 				Description: "A list of systemd units to enable",
-				Type:        deploy.StringSliceType,
+				Type:        conf.StringSliceType,
 			},
 			{
 				Name:        "InstallDirectory",
 				Description: "Path to the systemd unit directoy used to install units.",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 				Default:     "/etc/systemd/system",
 			},
 		},
 	})
 }
 
-func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
+func setupAction(task deploy.Task, sec conf.Section) (actions.Action, error) {
 	installUnits := sec.GetStringSlice("Install")
 
 	for idx := range installUnits {
@@ -60,12 +60,12 @@ func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
 	}
 
 	autoEnable, err := sec.GetBool("AutoEnable")
-	if err != nil && !unit.IsNotSet(err) {
+	if err != nil && !conf.IsNotSet(err) {
 		return nil, err
 	}
 
 	enableNow, err := sec.GetBool("EnableNow")
-	if err != nil && !unit.IsNotSet(err) {
+	if err != nil && !conf.IsNotSet(err) {
 		return nil, err
 	}
 
@@ -73,7 +73,7 @@ func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
 
 	installDirectory, err := sec.GetString("InstallDirectory")
 	if err != nil {
-		if !unit.IsNotSet(err) {
+		if !conf.IsNotSet(err) {
 			return nil, err
 		}
 

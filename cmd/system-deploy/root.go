@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/actions"
 	"github.com/ppacher/system-deploy/pkg/deploy"
 	"github.com/ppacher/system-deploy/pkg/runner"
@@ -113,7 +114,7 @@ func parseFile(filePath string, searchPaths []string) deploy.Task {
 		log.Fatalf("Failed to decode target at %s: %s", filePath, err)
 	}
 
-	dropins, err := deploy.LoadDropIns(target.FileName, searchPaths)
+	dropins, err := conf.LoadDropIns(target.FileName, searchPaths)
 	if err != nil {
 		log.Fatalf("Failed to load drop-in files for unit %s: %s", target.FileName, err)
 	}

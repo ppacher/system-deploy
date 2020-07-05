@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/actions"
 	"github.com/ppacher/system-deploy/pkg/deploy"
-	"github.com/ppacher/system-deploy/pkg/unit"
 	"github.com/ppacher/system-deploy/pkg/utils"
 )
 
@@ -17,22 +17,22 @@ func init() {
 		Setup:       setupAction,
 		Author:      "Patrick Pacher <patrick.pacher@gmail.com>",
 		Website:     "https://github.com/ppacher/system-deploy",
-		Options: []deploy.OptionSpec{
+		Options: []conf.OptionSpec{
 			{
 				Name:        "Run",
-				Type:        deploy.StringSliceType,
+				Type:        conf.StringSliceType,
 				Description: "Run a command. May be specified multiple times. Note that errors are only logged and don't abort subsequent tasks. Use Unmask for more control",
 			},
 			{
 				Name:        "Unmask",
-				Type:        deploy.StringSliceType,
+				Type:        conf.StringSliceType,
 				Description: "Unmask a task. May be specified multiple times.",
 			},
 		},
 	})
 }
 
-func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
+func setupAction(task deploy.Task, sec conf.Section) (actions.Action, error) {
 	return &action{
 		task: task,
 		sec:  sec,
@@ -43,7 +43,7 @@ type action struct {
 	actions.Base
 
 	task deploy.Task
-	sec  unit.Section
+	sec  conf.Section
 }
 
 func (a *action) Name() string {

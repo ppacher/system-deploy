@@ -10,10 +10,10 @@ import (
 	"github.com/fatih/color"
 	copyDir "github.com/otiai10/copy"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/actions"
 	"github.com/ppacher/system-deploy/pkg/change"
 	"github.com/ppacher/system-deploy/pkg/deploy"
-	"github.com/ppacher/system-deploy/pkg/unit"
 	"github.com/ppacher/system-deploy/pkg/utils"
 )
 
@@ -25,7 +25,7 @@ func init() {
 		Example:     example,
 		Author:      "Patrick Pacher <patrick.pacher@gmail.com>",
 		Website:     "https://github.com/ppacher/system-deploy",
-		Help: []deploy.Section{
+		Help: []actions.HelpSection{
 			{
 				Title: "Change Detection",
 				Description: "" +
@@ -40,23 +40,23 @@ func init() {
 					"This will be fixed in a later release.",
 			},
 		},
-		Options: []deploy.OptionSpec{
+		Options: []conf.OptionSpec{
 			{
 				Name:        "Source",
 				Required:    true,
 				Description: "The source file to copy to Destination.",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 			},
 			{
 				Name:        "Destination",
 				Required:    true,
 				Description: "The destination path where Source should be copied to.",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 			},
 			{
 				Name:        "CreateDirectories",
 				Description: "If set to true, missing directories in Destination will be created.",
-				Type:        deploy.BoolType,
+				Type:        conf.BoolType,
 				Default:     "no",
 			},
 			{
@@ -66,20 +66,20 @@ func init() {
 					"mode bits will be used. The destination files mode will be changed to match FileMode= " +
 					"even if the content is already correct." +
 					"Note that Mode is ingnored when copying directories.",
-				Type:    deploy.IntType,
+				Type:    conf.IntType,
 				Default: "",
 			},
 			{
 				Name:        "DirectoryMode",
 				Description: "When creating Destination path (CreateDirectories=yes) the mode bits (before umask) for that directories.",
-				Type:        deploy.IntType,
+				Type:        conf.IntType,
 				Default:     "0755",
 			},
 		},
 	})
 }
 
-func setupAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
+func setupAction(task deploy.Task, sec conf.Section) (actions.Action, error) {
 	a := &action{
 		taskDir: task.Directory,
 		opts:    sec.Options,
@@ -111,7 +111,7 @@ func (a *action) Prepare(graph actions.ExecGraph) error {
 
 	{
 		a.createPath, err = a.opts.GetBool("CreateDirectories")
-		if err != nil && !unit.IsNotSet(err) {
+		if err != nil && !conf.IsNotSet(err) {
 			return err
 		}
 	}
@@ -119,7 +119,7 @@ func (a *action) Prepare(graph actions.ExecGraph) error {
 	{
 		fileMode, err := a.opts.GetInt("FileMode")
 		if err != nil {
-			if !unit.IsNotSet(err) {
+			if !conf.IsNotSet(err) {
 				return fmt.Errorf("invalid value for FileMode: %w", err)
 			}
 			fileMode = 0700
@@ -134,7 +134,7 @@ func (a *action) Prepare(graph actions.ExecGraph) error {
 	{
 		dirMode, err := a.opts.GetInt("DirectoryMode")
 		if err != nil {
-			if !unit.IsNotSet(err) {
+			if !conf.IsNotSet(err) {
 				return fmt.Errorf("invalid value for DirectoryMode: %w", err)
 			}
 			dirMode = 0755
@@ -175,7 +175,7 @@ type action struct {
 	actions.Base
 
 	taskDir string
-	opts    unit.Options
+	opts    conf.Options
 	log     actions.Logger
 
 	source      string

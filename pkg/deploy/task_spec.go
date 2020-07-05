@@ -1,19 +1,19 @@
 package deploy
 
 import (
-	"github.com/ppacher/system-deploy/pkg/unit"
+	"github.com/ppacher/system-conf/conf"
 )
 
 type taskMetaOption struct {
-	OptionSpec
-	set func(val unit.Options, t *Task) error
+	conf.OptionSpec
+	set func(val conf.Options, t *Task) error
 	get func(t *Task) []string
 }
 
 // TaskOptions returns a slice of OptionSpec that are
 // allowed int he task meta section.
-func TaskOptions() []OptionSpec {
-	specs := make([]OptionSpec, len(taskOptions))
+func TaskOptions() []conf.OptionSpec {
+	specs := make([]conf.OptionSpec, len(taskOptions))
 
 	for idx, spec := range taskOptions {
 		specs[idx] = spec.OptionSpec
@@ -26,12 +26,12 @@ func TaskOptions() []OptionSpec {
 // meta section.
 var taskOptions = []taskMetaOption{
 	{
-		OptionSpec: OptionSpec{
+		OptionSpec: conf.OptionSpec{
 			Name:        "Description",
 			Description: "Defines a human readable description of the task's purpose",
-			Type:        StringType,
+			Type:        conf.StringType,
 		},
-		set: func(val unit.Options, t *Task) error {
+		set: func(val conf.Options, t *Task) error {
 			if val == nil {
 				t.Description = ""
 				return nil
@@ -49,13 +49,13 @@ var taskOptions = []taskMetaOption{
 		},
 	},
 	{
-		OptionSpec: OptionSpec{
+		OptionSpec: conf.OptionSpec{
 			Name:        "StartMasked",
 			Description: "Set to true if the ask should be masked from execution",
 			Default:     "no",
-			Type:        BoolType,
+			Type:        conf.BoolType,
 		},
-		set: func(val unit.Options, t *Task) error {
+		set: func(val conf.Options, t *Task) error {
 			if val == nil {
 				t.StartMasked = false
 				return nil
@@ -74,13 +74,13 @@ var taskOptions = []taskMetaOption{
 		},
 	},
 	{
-		OptionSpec: OptionSpec{
+		OptionSpec: conf.OptionSpec{
 			Name:        "Disabled",
 			Description: "Set to true if the task should be disabled. A disabled task cannot be executed in any way",
 			Default:     "no",
-			Type:        BoolType,
+			Type:        conf.BoolType,
 		},
-		set: func(val unit.Options, t *Task) error {
+		set: func(val conf.Options, t *Task) error {
 			if val == nil {
 				t.Disabled = false
 				return nil
@@ -98,13 +98,13 @@ var taskOptions = []taskMetaOption{
 		},
 	},
 	{
-		OptionSpec: OptionSpec{
+		OptionSpec: conf.OptionSpec{
 			Name: "Environment",
 			Description: "Configure one or more environment files that are loaded into the task and may be used during substitution. " +
 				"Environment files are loaded in the order they are specified and later ones overwrite already existing values.",
-			Type: StringSliceType,
+			Type: conf.StringSliceType,
 		},
-		set: func(val unit.Options, t *Task) error {
+		set: func(val conf.Options, t *Task) error {
 			if val == nil {
 				t.EnvironmentFiles = nil
 				return nil

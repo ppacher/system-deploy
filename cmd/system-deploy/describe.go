@@ -7,6 +7,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/mitchellh/go-wordwrap"
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/actions"
 	"github.com/ppacher/system-deploy/pkg/deploy"
 	"github.com/spf13/cobra"
@@ -107,7 +108,7 @@ var describe = &cobra.Command{
 			}
 		}
 
-		if !deploy.IsAllowAny(plg.Options) {
+		if !conf.IsAllowAny(plg.Options) {
 			fmt.Printf("\n%s\n\n", header("Options"))
 
 			for _, opt := range plg.Options {

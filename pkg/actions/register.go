@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/deploy"
-	"github.com/ppacher/system-deploy/pkg/unit"
 )
 
 // ErrNoSetupFunc is returned when a plugin without a Setup
@@ -74,7 +74,7 @@ func ListActions() []string {
 }
 
 // Setup returns the action function for name.
-func Setup(name string, log Logger, task deploy.Task, section unit.Section) (Action, error) {
+func Setup(name string, log Logger, task deploy.Task, section conf.Section) (Action, error) {
 	actionsLock.RLock()
 	defer actionsLock.RUnlock()
 
@@ -86,7 +86,7 @@ func Setup(name string, log Logger, task deploy.Task, section unit.Section) (Act
 	}
 
 	// prepare the section by applying defaults and validating all options.
-	prepared, err := deploy.Prepare(section, plg.Options)
+	prepared, err := conf.Prepare(section, plg.Options)
 	if err != nil {
 		return nil, err
 	}

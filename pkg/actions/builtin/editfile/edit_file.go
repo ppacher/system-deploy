@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/actions"
 	"github.com/ppacher/system-deploy/pkg/change"
 	"github.com/ppacher/system-deploy/pkg/deploy"
-	"github.com/ppacher/system-deploy/pkg/unit"
 	"github.com/ppacher/system-deploy/pkg/utils"
 	"github.com/rwtodd/Go.Sed/sed"
 )
@@ -20,21 +20,21 @@ func init() {
 		Website:     "https://github.com/ppacher/system-deploy",
 		Description: "Manipulate existing files using SED like syntax",
 		Example:     example,
-		Options: []deploy.OptionSpec{
+		Options: []conf.OptionSpec{
 			{
 				Name:        "Sed",
-				Type:        deploy.StringSliceType,
+				Type:        conf.StringSliceType,
 				Description: "Apply an SED instruction on the target file. May be specified multiple times. Refer to https://github.com/rwtodd/Go.Sed for more information about the regexp syntax.",
 			},
 			{
 				Name:        "File",
-				Type:        deploy.StringType,
+				Type:        conf.StringType,
 				Description: "Path to the file to modify",
 				Required:    true,
 			},
 			{
 				Name:        "IgnoreMissing",
-				Type:        deploy.BoolType,
+				Type:        conf.BoolType,
 				Description: "Check if the file exists and if not, don't do anything.",
 			},
 		},
@@ -53,7 +53,7 @@ type editAction struct {
 	mode       os.FileMode
 }
 
-func setup(task deploy.Task, section unit.Section) (actions.Action, error) {
+func setup(task deploy.Task, section conf.Section) (actions.Action, error) {
 	ignore := section.Options.GetBoolDefault("IgnoreMissing", false)
 	seds := section.Options.GetStringSlice("Sed")
 	source, err := section.Options.GetString("File")

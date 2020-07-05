@@ -8,9 +8,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/actions"
 	"github.com/ppacher/system-deploy/pkg/deploy"
-	"github.com/ppacher/system-deploy/pkg/unit"
 )
 
 var (
@@ -24,16 +24,16 @@ func init() {
 		Author:      "Patrick Pacher <patrick.pacher@gmail.com>",
 		Website:     "https://github.com/ppacher/system-deploy",
 		Description: "Install software packages using various package managers. For more control on the installation behavior use the Exec section instead.",
-		Options: []deploy.OptionSpec{
+		Options: []conf.OptionSpec{
 			{
 				Name:        "AptPkgs",
 				Description: "Packages to install if APT is available",
-				Type:        deploy.StringSliceType,
+				Type:        conf.StringSliceType,
 			},
 			{
 				Name:        "PacmanPkgs",
 				Description: "Packages to install if Pacman is available",
-				Type:        deploy.StringSliceType,
+				Type:        conf.StringSliceType,
 			},
 			// TODO(ppacher): add support for DNF
 			// TODO(ppacher): add support for snap
@@ -55,7 +55,7 @@ func init() {
 	})
 }
 
-func setupInstallAction(task deploy.Task, sec unit.Section) (actions.Action, error) {
+func setupInstallAction(task deploy.Task, sec conf.Section) (actions.Action, error) {
 	aptPkgs := getPackages("AptPkgs", sec)
 	pacmanPkgs := getPackages("PacmanPkgs", sec)
 	dnfPkgs := getPackages("DnfPkgs", sec)
@@ -73,7 +73,7 @@ func setupInstallAction(task deploy.Task, sec unit.Section) (actions.Action, err
 	}, nil
 }
 
-func getPackages(configKey string, sec unit.Section) []string {
+func getPackages(configKey string, sec conf.Section) []string {
 	var pkgs []string
 	pkgOpts := sec.GetStringSlice(configKey)
 

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ppacher/system-deploy/pkg/unit"
+	"github.com/ppacher/system-conf/conf"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,10 +30,10 @@ Key2= Value2
 			&Task{
 				StartMasked: true,
 				Disabled:    true,
-				Sections: []unit.Section{
+				Sections: []conf.Section{
 					{
 						Name: "Section1",
-						Options: []unit.Option{
+						Options: []conf.Option{
 							{
 								Name:  "Key1",
 								Value: "Value1",
@@ -42,7 +42,7 @@ Key2= Value2
 					},
 					{
 						Name: "Section2",
-						Options: []unit.Option{
+						Options: []conf.Option{
 							{
 								Name:  "Key2",
 								Value: "Value2",
@@ -61,16 +61,18 @@ Key2= Value2
 		{
 			"[Task]\n",
 			nil,
-			ErrNoSections,
+			conf.ErrNoSections,
 		},
 	}
 
 	for idx, c := range cases {
 		tsk, err := Decode("test-file", strings.NewReader(c.I))
 		if tsk != nil {
-			// there's not file name in tests.
+			// there's not file name in tests and we also
+			// ignore the "original" conf.File
 			tsk.FileName = ""
 			tsk.Directory = ""
+			tsk.file = nil
 		}
 
 		if !errors.Is(err, c.E) {

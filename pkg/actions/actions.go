@@ -6,8 +6,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ppacher/system-conf/conf"
 	"github.com/ppacher/system-deploy/pkg/deploy"
-	"github.com/ppacher/system-deploy/pkg/unit"
 )
 
 // ActionFunc performs a custom action and returns either success or failure.
@@ -19,7 +19,12 @@ type ActionFunc func(ctx context.Context) error
 type PostActionFunc func(ctx context.Context) error
 
 // SetupFunc should return a new action instance.
-type SetupFunc func(deploy.Task, unit.Section) (Action, error)
+type SetupFunc func(deploy.Task, conf.Section) (Action, error)
+
+type HelpSection struct {
+	Title       string
+	Description string
+}
 
 // Plugin describes a deploy plugin.
 type Plugin struct {
@@ -38,13 +43,13 @@ type Plugin struct {
 	Setup SetupFunc
 
 	// Help may contain additional help sections.
-	Help []deploy.Section
+	Help []HelpSection
 
 	// Example may contain an example task.
 	Example string
 
 	// Options defines all supported deploy options.
-	Options []deploy.OptionSpec
+	Options []conf.OptionSpec
 
 	// Author may hold the name of the plugin author.
 	Author string
@@ -55,8 +60,8 @@ type Plugin struct {
 
 // OptionSpecs returns a map using lower-case option names
 // as the key.
-func (plg *Plugin) OptionSpecs() map[string]deploy.OptionSpec {
-	m := make(map[string]deploy.OptionSpec, len(plg.Options))
+func (plg *Plugin) OptionSpecs() map[string]conf.OptionSpec {
+	m := make(map[string]conf.OptionSpec, len(plg.Options))
 
 	for _, opt := range plg.Options {
 		m[strings.ToLower(opt.Name)] = opt
@@ -67,11 +72,11 @@ func (plg *Plugin) OptionSpecs() map[string]deploy.OptionSpec {
 
 // TaskSpec loads all plugins for the task t and returns a nested lookup map
 // for allowed options per section.
-func TaskSpec(t *deploy.Task) (map[string]map[string]deploy.OptionSpec, error) {
+func TaskSpec(t *deploy.Task) (map[string]map[string]conf.OptionSpec, error) {
 	actionsLock.RLock()
 	defer actionsLock.RUnlock()
 
-	result := make(map[string]map[string]deploy.OptionSpec)
+	result := make(map[string]map[string]conf.OptionSpec)
 
 	for _, sec := range t.Sections {
 		key := strings.ToLower(sec.Name)
