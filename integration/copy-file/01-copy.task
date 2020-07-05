@@ -1,0 +1,9 @@
+[Task]
+Description= Copy fixtures/testfile to /tmp/${TEST}/dir/testfile
+
+[Copy]
+Source= ./fixtures/testfile
+Destination= /tmp/${TEST}/dir/testfile
+CreateDirectories=yes
+FileMode=0600
+DirectoryModr=0755

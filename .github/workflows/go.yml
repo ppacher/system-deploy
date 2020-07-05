@@ -76,9 +76,9 @@ jobs:
     - name: Running system-deploy
       # we ignore any error in the system-deploy binary (maybe cause that's intendet).
       # integration tests should verify using ./verify.sh
-      run: bash -c "./system-deploy/system-deploy ./integration/${{ matrix.test }} || exit 0"
+      run: bash -c "TEST=${{ matrix.text }} ./system-deploy/system-deploy ./integration/${{ matrix.test }} || exit 0"
       
     - name: Verifying results
-      run: bash ./integration/${{ matrix.test }}/verify.sh
+      run: bash -c "TEST=${{ matrix.text }} bash ./integration/${{ matrix.test }}/verify.sh"
         
       
