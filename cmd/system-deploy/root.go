@@ -119,7 +119,6 @@ func parseFile(filePath string, searchPaths []string) deploy.Task {
 		log.Fatalf("Failed to load drop-in files for unit %s: %s", target.FileName, err)
 	}
 
-	// TODO(ppacher): this is ugly, remove it and fix it in ApplyDropIns
 	specs, err := actions.TaskSpec(target)
 	if err != nil {
 		log.Fatalf("Failed to apply dropins to %s: %s", target.FileName, err)

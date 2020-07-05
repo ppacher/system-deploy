@@ -44,3 +44,25 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+
+    - name: Upload system-deploy binary
+      uses: actions/upload-artifact@v1
+      with:
+        name: system-deploy
+        path: ./system-deploy
+
+  test:
+    name: Integration test ${{ matrix.test }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        test: [example]
+        os: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Download system deploy binary
+      uses: actions/download-artifact@v1
+      with:
+        name: system-deploy
+    
