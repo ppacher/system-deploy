@@ -70,5 +70,13 @@ jobs:
     - name: Allow execution
       run: chmod a+x ./system-deploy/system-deploy
     
-    - name: Describe test
-      run: ./system-deploy/system-deploy describe copy
+    - name: Directory listing
+      run: ls
+    
+    - name: Running system-deploy
+      run: ./system-deploy/system-deploy ./${{ matrix.text }}
+      
+    - name: Verifying results
+      run: bash ./system-deploy/integration/${{ matrix.text }}/verify.sh
+        
+      

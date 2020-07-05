@@ -1,0 +1,6 @@
+[Task]
+Description= Execute a simple command
+
+[Exec]
+Command=bash -c "echo test > /tmp/testfile"
+DisplayOutput=yes
