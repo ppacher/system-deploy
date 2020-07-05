@@ -3,13 +3,17 @@ Description= Install/Update oh-my-zsh and zshrc
 
 [Exec]
 WorkingDirectory=/home/bar
-Command=su -l bar -c '[ -e .oh-my-zsh ] \
+User=bar
+Group=bar
+Command=bash -c 'HOME=/home/bar [ -e .oh-my-zsh ] \
                 && ( cd .oh-my-zsh ; git pull ) \
                 || sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
 
 [Copy]
 Source=./zshrc
 Destination=/home/bar/.zshrc
+CreateDirectories=yes
+DirectoryMode=0755
 
 [OnChange]
 Run=chown bar:bar /home/bar/.zshrc
