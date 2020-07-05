@@ -71,4 +71,4 @@ jobs:
       run: chmod a+x ./system-deploy/system-deploy
     
     - name: Describe test
-      run: ./system-deploy/system-deploy describe copyfile
+      run: ./system-deploy/system-deploy describe copy
