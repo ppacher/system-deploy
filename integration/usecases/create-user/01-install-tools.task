@@ -1,0 +1,6 @@
+[Task]
+Description= Install zsh curl and git
+
+[InstallPackages]
+AptPkgs=zsh curl git
+PacmanPkgs=zsh curl git
