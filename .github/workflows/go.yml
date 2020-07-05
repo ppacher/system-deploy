@@ -74,9 +74,9 @@ jobs:
       run: ls
     
     - name: Running system-deploy
-      run: ./system-deploy/system-deploy ./${{ matrix.text }}
+      run: ./system-deploy/system-deploy ./integration/${{ matrix.test }}
       
     - name: Verifying results
-      run: bash ./system-deploy/integration/${{ matrix.text }}/verify.sh
+      run: bash ./integration/${{ matrix.test }}/verify.sh
         
       
