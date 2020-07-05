@@ -53,6 +53,7 @@ jobs:
 
   integration:
     name: Integration test ${{ matrix.test }} on ${{ matrix.os }}
+    needs: build
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
