@@ -6,4 +6,4 @@ Source= ./fixtures/testfile
 Destination= /tmp/${TEST}/dir/testfile
 CreateDirectories=yes
 FileMode=0600
-DirectoryModr=0755
+DirectoryMode=0755
