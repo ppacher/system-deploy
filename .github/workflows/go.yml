@@ -54,11 +54,12 @@ jobs:
   integration:
     name: Integration test ${{ matrix.test }} on ${{ matrix.os }}
     needs: build
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    container: ${{ matrix.container }}
     strategy:
       matrix:
-        test: [example]
-        os: [ubuntu-latest]
+        test: [example, copy-file]
+        container: [ubuntu:latest]
 
     steps:
     - uses: actions/checkout@v1
