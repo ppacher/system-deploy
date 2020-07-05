@@ -68,4 +68,4 @@ jobs:
         name: system-deploy
     
     - name: Describe test
-      run: ./system-deploy describe copyfile
+      run: ./system-deploy/system-deploy describe copyfile
