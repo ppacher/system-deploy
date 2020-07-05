@@ -52,7 +52,7 @@ jobs:
         path: ./system-deploy
 
   integration:
-    name: Integration ${{ matrix.test }|${{ matrix.container }}
+    name: Integration ${{ matrix.test }}|${{ matrix.container }}
     needs: build
     runs-on: ubuntu-latest
     container: ${{ matrix.container }}
