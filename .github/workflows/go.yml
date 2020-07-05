@@ -51,7 +51,7 @@ jobs:
         name: system-deploy
         path: ./system-deploy
 
-  test:
+  integration:
     name: Integration test ${{ matrix.test }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
