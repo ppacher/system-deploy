@@ -1,0 +1,6 @@
+[Task]
+Description= Update apt cache
+ConditionPackageManager=apt
+
+[Exec]
+Command=apt update
