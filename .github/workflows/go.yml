@@ -52,13 +52,16 @@ jobs:
         path: ./system-deploy
 
   integration:
-    name: Integration test ${{ matrix.test }} on ${{ matrix.container }}
+    name: Integration ${{ matrix.test }|${{ matrix.container }}
     needs: build
     runs-on: ubuntu-latest
     container: ${{ matrix.container }}
     strategy:
       matrix:
-        test: [example, copy-file]
+        test:
+            - example
+            - copy-file
+            - usecases/create-user
         container: ["ubuntu:latest", "archlinux:latest"]
 
     steps:

@@ -1,0 +1,6 @@
+ 
+[Task]
+Description=Create bar user
+
+[Exec]
+Command=bash ./users.sh bar

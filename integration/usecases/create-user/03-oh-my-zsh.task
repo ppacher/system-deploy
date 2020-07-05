@@ -1,0 +1,15 @@
+[Task]
+Description= Install/Update oh-my-zsh and zshrc
+
+[Exec]
+WorkingDirectory=/home/bar
+Command=su -l bar -c '[ -e .oh-my-zsh ] \
+                && ( cd .oh-my-zsh ; git pull ) \
+                || sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+
+[Copy]
+Source=./assets/bar/zshrc
+Destination=/home/bar/.zshrc
+
+[OnChange]
+Run=chown bar:bar /home/bar/.zshrc

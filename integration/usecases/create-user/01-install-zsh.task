@@ -1,0 +1,6 @@
+[Task]
+Description= Install zsh
+
+[InstallPackages]
+AptPkgs=zsh
+PacmanPkgs=zsh
