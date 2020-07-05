@@ -8,7 +8,7 @@ Command=su -l bar -c '[ -e .oh-my-zsh ] \
                 || sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
 
 [Copy]
-Source=./assets/bar/zshrc
+Source=./zshrc
 Destination=/home/bar/.zshrc
 
 [OnChange]
