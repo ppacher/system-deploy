@@ -27,6 +27,7 @@ func init() {
 
 func getRootCmd() *cobra.Command {
 	var dropInSearchPaths []string
+	var additionalEnv []string
 
 	var root = &cobra.Command{
 		Use:   "system-deploy",
@@ -60,7 +61,8 @@ func getRootCmd() *cobra.Command {
 					}
 
 					path := filepath.Join(dir, fi.Name())
-					targets = append(targets, parseFile(path, dropInSearchPaths))
+					file := parseFile(path, dropInSearchPaths, additionalEnv)
+					targets = append(targets, file)
 				}
 			}
 
@@ -84,6 +86,7 @@ func getRootCmd() *cobra.Command {
 		"/etc/system-deploy",
 	}
 	root.Flags().StringSliceVarP(&dropInSearchPaths, "path", "p", defaultSearchPath, "Search paths for task drop-in files.")
+	root.Flags().StringSliceVarP(&additionalEnv, "env", "e", nil, "Additional environment variables for each task")
 
 	var logLevel string
 	root.PersistentFlags().StringVarP(&logLevel, "log", "l", "info", "Log level")
@@ -102,7 +105,7 @@ func getRootCmd() *cobra.Command {
 	return root
 }
 
-func parseFile(filePath string, searchPaths []string) deploy.Task {
+func parseFile(filePath string, searchPaths []string, extraEnv []string) deploy.Task {
 	f, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -127,6 +130,12 @@ func parseFile(filePath string, searchPaths []string) deploy.Task {
 	if err := deploy.ApplyDropIns(target, dropins, specs); err != nil {
 		log.Fatalf("Failed to apply dropins to %s: %s", target.FileName, err)
 	}
+
+	if err := deploy.LoadEnv(target); err != nil {
+		log.Fatalf("Failed to load environment for task %s: %s", target.FileName, err)
+	}
+
+	target.Environment = append(target.Environment, extraEnv...)
 
 	if err = deploy.ApplyEnvironment(target); err != nil {
 		log.Fatalf("Failed to apply environment to task %s: %s", target.FileName, err)

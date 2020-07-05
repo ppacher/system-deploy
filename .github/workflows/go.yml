@@ -71,13 +71,10 @@ jobs:
     - name: Allow execution
       run: chmod a+x ./system-deploy/system-deploy
     
-    - name: Directory listing
-      run: ls
-    
     - name: Running system-deploy
       # we ignore any error in the system-deploy binary (maybe cause that's intendet).
       # integration tests should verify using ./verify.sh
-      run: bash -c "TEST=${{ matrix.test }} ./system-deploy/system-deploy ./integration/${{ matrix.test }} || exit 0"
+      run: bash -c "./system-deploy/system-deploy --env TEST=${{ matrix.test }} ./integration/${{ matrix.test }} || exit 0"
       
     - name: Verifying results
       run: bash -c "set -e ; set -x ; TEST=${{ matrix.test }} bash ./integration/${{ matrix.test }}/verify.sh"
