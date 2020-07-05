@@ -67,5 +67,8 @@ jobs:
       with:
         name: system-deploy
     
+    - name: Allow execution
+      run: chmod a+x ./system-deploy/system-deploy
+    
     - name: Describe test
       run: ./system-deploy/system-deploy describe copyfile
