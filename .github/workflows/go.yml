@@ -59,7 +59,7 @@ jobs:
     strategy:
       matrix:
         test: [example, copy-file]
-        container: [ubuntu:latest]
+        container: ["ubuntu:latest"]
 
     steps:
     - uses: actions/checkout@v1
