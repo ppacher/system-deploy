@@ -7,6 +7,7 @@ User=bar
 Group=bar
 DisplayOutput=yes
 Environment=HOME=/home/bar
+Environment=USER=bar
 Command=bash -c '[ -e .oh-my-zsh ] \
                 && ( cd .oh-my-zsh ; git pull ) \
                 || sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'

@@ -4,3 +4,6 @@ ConditionPackageManager=pacman
 
 [Exec]
 Command=pacman -Sy
+
+[Exec]
+Command=groupadd sudo

@@ -1,6 +1,6 @@
 [Task]
-Description= Install zsh curl and git
+Description= Install zsh curl and git sudo
 
 [InstallPackages]
 AptPkgs=zsh curl git
-PacmanPkgs=zsh curl git
+PacmanPkgs=zsh curl git sudo
